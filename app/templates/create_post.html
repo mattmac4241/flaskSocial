@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row">
+      <div class="col-lg-6">
+        <form method="POST"  action="/create_post/" method="POST">
+          <div class="input-group">
+             <label for="title" class="h4">Title</label>
+           	 <input type="text" class="form-control" name="title" id="title" placeholder="Enter title" required>
+           	 <br>
+           	 <label for="content" class="h4 ">Content</label>
+            <textarea id="content" name="content" class="form-control" rows="5" placeholder="Enter your content" required></textarea>
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">Go!</button>
+            </span>
+          </form>
+        </div><!-- /input-group -->
+     </div>
+	</div>
+</div>
+{%endblock%}

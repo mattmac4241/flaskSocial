@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%block content%}
+<div class="container">
+    <div class="row">
+        <div class="name">
+        	{%for user in users_from%}
+            <h1>{{user.user_name}}</h1>
+            {%endfor%}
+        </div>
+        <div>
+    </div>
+</div>
+
+{%endblock%}
