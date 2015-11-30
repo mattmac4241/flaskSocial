@@ -21,7 +21,9 @@ manager.add_command('db', MigrateCommand)
 
 from users.views import users_blueprint
 from posts.views import posts_blueprint
+from messages.views import message_blueprint 
 
 app.register_blueprint(users_blueprint)
 app.register_blueprint(posts_blueprint)
+app.register_blueprint(message_blueprint)
 

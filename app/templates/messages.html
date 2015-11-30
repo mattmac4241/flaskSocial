@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%block content%}
+<div class="container">
+    <div class="row">
+        <div class="name">
+        	{%for m in messages%}
+            <h1>{{m.content}}</h1>
+            {%endfor%}
+        </div>
+        <div>
+    </div>
+</div>
+
+{%endblock%}

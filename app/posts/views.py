@@ -51,8 +51,10 @@ def post(post_id):
 @posts_blueprint.route('/post/<int:post_id>/delete/')
 @login_required
 def delete_post(post_id):
-	if post_id == session['user_id']:
-		Post.query.filter_by(id=post_id).delete()
+	post = Post.query.get(post_id)
+	if post.poster == session['user_id']:
+		db.session.delete(post)
+		db.session.commit()
 		flash('POST deleted')
 		return redirect(url_for('users.profile',user_id = session['user_id']))
 	else:

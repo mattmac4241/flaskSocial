@@ -27,8 +27,6 @@ def are_friends(user1,user2):
     else:
         return False
 
-
-
 @users_blueprint.route('/register/',methods=['GET','POST'])
 def register():
     error = None
@@ -60,7 +58,7 @@ def login():
                 session['user_id'] = user.id
                 flash('Welcome!')
                 flash("Succesfful Logged in")
-                return redirect(url_for('users.profile',user_id=user.id))
+                return redirect(url_for('users.my_profile'))
             else:
                 error = 'Invlaid username or password'
     return render_template('login.html',form=form,error=error)
@@ -76,7 +74,17 @@ def logout():
 @login_required
 def profile(user_id):
     user = User.query.get(user_id)
-    return render_template('user.html',user=user)
+    user_profile = user.id == session['user_id']
+    if request.method == 'POST':
+        print request.form 
+        message = Message(
+            user_to = User.query.get(user_id),
+            user_from = User.query.get(session['user_id']),
+            content = request.form['message']
+            )
+        db.session.add(message)
+        db.session.commit()
+    return render_template('user.html',user=user,user_profile=user_profile)
 
 
 @users_blueprint.route('/user/<int:user_id>/add_friend/')
@@ -158,7 +166,7 @@ def delete_friend(user_id):
 @login_required
 def my_profile():
     user = User.query.get(session['user_id'])
-    return render_template('user.html',user=user)
+    return render_template('user.html',user=user,user_profile = True)
 
 
 

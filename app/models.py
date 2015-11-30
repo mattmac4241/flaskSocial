@@ -91,7 +91,19 @@ class FriendRequest(db.Model):
 			FriendRequest.query.filter_by(id=self.id).delete()
 			db.session.commit()
 
+class Message(db.Model):
+	__tablename__ = 'messages'
+	id = db.Column(db.Integer,primary_key=True)
+	user_from = db.Column(db.Integer, db.ForeignKey('users.id'))
+	user_to = db.Column(db.Integer, db.ForeignKey('users.id'))
+	read = db.Column(db.Boolean,default=False)
+	content = db.Column(db.String,nullable=False)
 
+
+	def __init__(self,user_from,user_to,content):
+		self.user_from = user_from
+		self.user_to = user_to
+		self.content = content
 
 
 
