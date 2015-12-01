@@ -11,6 +11,23 @@ friends = db.Table('friends',
     db.Column('friend2_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+members = db.Table('members',
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
+)
+
+group_posts = db.Table('group_posts',
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
+    db.Column('post_id', db.Integer, db.ForeignKey('posts.id'))
+)
+
+admins = db.Table('admins',
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
+)
+
+
+
 class User(db.Model):
 	__tablename__ = 'users'
 
@@ -18,13 +35,15 @@ class User(db.Model):
 	user_name = db.Column(db.String,unique=True,nullable=False)
 	email = db.Column(db.String,unique=True,nullable=False)
 	password = db.Column(db.String,nullable=False)
-	posts = db.relationship('Post',secondary=association_table,backref=db.backref('posts', lazy='dynamic'))
+	posts = db.relationship('Post',secondary=association_table,backref=db.backref('user_posts', lazy='dynamic'))
 	friends = db.relationship('User', 
                                secondary=friends, 
                                primaryjoin=(friends.c.friend1_id == id), 
                                secondaryjoin=(friends.c.friend2_id == id), 
                                backref=db.backref('user_friends', lazy='dynamic'), 
                                lazy='dynamic')
+	groups = db.relationship('Group',secondary=members,backref=db.backref('user_groups', lazy='dynamic'))
+
 
 	def __init__(self,user_name,email,password):
 		self.user_name = user_name
@@ -54,7 +73,7 @@ class Post(db.Model):
                                secondary=friends, 
                                primaryjoin=(friends.c.friend1_id == id), 
                                secondaryjoin=(friends.c.friend2_id == id), 
-                               backref=db.backref('user_', lazy='dynamic'), 
+                               backref=db.backref('users', lazy='dynamic'), 
                                lazy='dynamic')
 
 	def __init__(self,title,content,poster):
@@ -93,17 +112,46 @@ class FriendRequest(db.Model):
 
 class Message(db.Model):
 	__tablename__ = 'messages'
+
 	id = db.Column(db.Integer,primary_key=True)
 	user_from = db.Column(db.Integer, db.ForeignKey('users.id'))
 	user_to = db.Column(db.Integer, db.ForeignKey('users.id'))
 	read = db.Column(db.Boolean,default=False)
 	content = db.Column(db.String,nullable=False)
 
-
 	def __init__(self,user_from,user_to,content):
 		self.user_from = user_from
 		self.user_to = user_to
 		self.content = content
+
+class Group(db.Model):
+	__tablename__ = 'groups'
+
+	id = db.Column(db.Integer,primary_key=True)
+	name = db.Column(db.String,unique=True,nullable=False)
+	members = db.relationship('User',secondary=members,backref=db.backref('group_users', lazy='dynamic'))
+	group_posts = db.relationship('Post',secondary=group_posts,backref=db.backref('posts', lazy='dynamic'))
+	admins = db.relationship('User',secondary=admins,backref=db.backref('admin_users', lazy='dynamic'))
+	description = db.Column(db.String)
+	private = db.Column(db.Boolean)
+	slug = db.String(db.String)
+
+	def __init__(self,name,description,admin,private,slug):
+		self.name = name
+		self.description = description
+		self.admins.append(admin)
+		self.private = private
+		self.members.append(admin)
+		self.slug = slug
+
+	def join(self,user):
+		self.members.append(user)
+		db.session.commit()
+
+	def leave(self,user):
+		self.members.remove(user)
+		db.session.commit()
+
 
 
 

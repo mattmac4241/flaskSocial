@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h1>Create Group</h1>
+<form method="POST" action="/groups/create/" enctype="multipart/form-data">
+  {{ form.csrf_token }}
+  <p>
+    {{ form.name(placeholder="group name") }}
+    {% if form.name.errors %}
+      <span class="error">
+        {% for error in form.name.errors %}
+          {{ error }}
+        {% endfor %}
+      </span>
+    {% endif %}
+  </p>
+  <p>
+    {{ form.description(placeholder="description") }}
+    {% if form.description.errors %}
+      <span class="error">
+        {% for error in form.description.errors %}
+          {{ error }}
+        {% endfor %}
+      </span>
+    {% endif %}
+  </p>
+    <p>
+    {{ form.private(placeholder="private or public") }}
+    {% if form.private.errors %}
+      <span class="error">
+        {% for error in form.private.errors %}
+          {{ error }}
+        {% endfor %}
+      </span>
+    {% endif %}
+  </p>
+  <button class="btn btn-sm btn-success" type="submit">Create</button>
+  <br>
+</form>
+
+{% endblock %}
