@@ -136,13 +136,12 @@ class Group(db.Model):
 	private = db.Column(db.Boolean)
 	slug = db.String(db.String)
 
-	def __init__(self,name,description,admin,private,slug):
+	def __init__(self,name,description,admin,private):
 		self.name = name
 		self.description = description
 		self.admins.append(admin)
 		self.private = private
 		self.members.append(admin)
-		self.slug = slug
 
 	def join(self,user):
 		self.members.append(user)
