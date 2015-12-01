@@ -4,27 +4,15 @@ from sqlalchemy.exc import IntegrityError
 from .forms import PostForm
 from app.models import Post,User
 from app import db,bcrypt
-import os
+from app.helpers import login_required,get_object_or_404
 
 posts_blueprint = Blueprint('posts',__name__)
-
-#helper function
-def login_required(test):
-    @wraps(test)
-    def wrap(*args,**kwargs):
-        if 'logged_in' in session:
-            return test(*args,**kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('users.login'))
-    return wrap
 
 
 @posts_blueprint.route('/create_post/',methods=['GET','POST'])
 @login_required
 def create_post():
 	user = User.query.get(session['user_id'])
-	#form = PostForm(request.form)
 	if request.method == 'POST':
 		print request.form
 		post = Post(
@@ -45,13 +33,13 @@ def create_post():
 @posts_blueprint.route('/post/<int:post_id>/')
 @login_required
 def post(post_id):
-	post = Post.query.get(post_id)
+	post = get_object_or_404(Post,Post.id==post_id)
 	return render_template('post.html',post=post)
 
 @posts_blueprint.route('/post/<int:post_id>/delete/')
 @login_required
 def delete_post(post_id):
-	post = Post.query.get(post_id)
+	post = get_object_or_404(Post,Post.id==post_id)
 	if post.poster == session['user_id']:
 		db.session.delete(post)
 		db.session.commit()

@@ -1,22 +1,11 @@
-from functools import wraps
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
 from app.models import User,Message
 from app import db,bcrypt
 import os
+from app.helpers import login_required,get_object_or_404
 
 message_blueprint = Blueprint('messages',__name__)
-
-#helper function
-def login_required(test):
-    @wraps(test)
-    def wrap(*args,**kwargs):
-        if 'logged_in' in session:
-            return test(*args,**kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('users.login'))
-    return wrap
 
 @message_blueprint.route('/send_message/<int:user_id>/',methods=['GET','POST'])
 @login_required
@@ -42,15 +31,13 @@ def send_message(user_id):
 @login_required
 def messages():
 	messages = Message.query.filter_by(user_to=session['user_id'])
-	for message in messages:
-		print message.content
-		print message.id
+	print messages.first()
 	return render_template('messages.html',messages=messages)
 
 @message_blueprint.route('/messages/<int:message_id>/')
 @login_required
 def read_message(message_id):
-	message = Message.query.get(message_id)
+	message = get_object_or_404(Message,Message.id == message_id)
 	if session['user_id'] == message.user_to:
 		user_from = User.query.get(message.user_from)
 		message.read = True
@@ -62,7 +49,7 @@ def read_message(message_id):
 @message_blueprint.route('/messages/<int:message_id>/delete/')
 @login_required
 def delte_message(message_id):
-	message = Message.query.get(message_id)
+	message = get_object_or_404(Message,Message.id == message_id)
 	if session['user_id'] == message.user_to:
 		db.session.delete(message)
 		db.session.commit()

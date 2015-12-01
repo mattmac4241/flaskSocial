@@ -143,12 +143,26 @@ class Group(db.Model):
 		self.private = private
 		self.members.append(admin)
 
+	def is_member(self,user):
+		if user in members:
+			return True
+		else:
+			return False
+
+	def is_admin(self,user):
+		if user in admins:
+			return True
+		else:
+			return False
+
 	def join(self,user):
 		self.members.append(user)
 		db.session.commit()
 
 	def leave(self,user):
 		self.members.remove(user)
+		user = User.query.get(user)
+		user.groups.remove(self)
 		db.session.commit()
 
 

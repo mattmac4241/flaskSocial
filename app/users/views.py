@@ -4,21 +4,11 @@ from sqlalchemy.exc import IntegrityError
 from .forms import RegisterForm,LoginForm
 from app.models import User,FriendRequest
 from app import db,bcrypt
-import os
+from app.helpers import login_required,get_object_or_404
 
 users_blueprint = Blueprint('users',__name__)
 
-#helper function
-def login_required(test):
-    @wraps(test)
-    def wrap(*args,**kwargs):
-        if 'logged_in' in session:
-            return test(*args,**kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('users.login'))
-    return wrap
-
+#check if users are friends
 def are_friends(user1,user2):
     user1 = User.query.get(user1)
     user2 = User.query.get(user2)
@@ -27,6 +17,7 @@ def are_friends(user1,user2):
     else:
         return False
 
+#usre register
 @users_blueprint.route('/register/',methods=['GET','POST'])
 def register():
     error = None
@@ -73,7 +64,7 @@ def logout():
 @users_blueprint.route('/user/<int:user_id>/')
 @login_required
 def profile(user_id):
-    user = User.query.get(user_id)
+    user = get_object_or_404(User,User.id == user_id)
     user_profile = user.id == session['user_id']
     if request.method == 'POST':
         print request.form 
@@ -90,7 +81,7 @@ def profile(user_id):
 @users_blueprint.route('/user/<int:user_id>/add_friend/')
 @login_required
 def add_friend(user_id):
-    check = FriendRequest.query.filter_by(user_sent_from = session['user_id'],user_sent_to = user_id).first()
+    check = FriendRequest.query.filter_by(user_sent_from = session['user_id'],user_sent_to = user_id).first() #get friend request
     friends = are_friends(session['user_id'],user_id)
     if check == None and not friends:
         fq = FriendRequest(
@@ -112,17 +103,18 @@ def add_friend(user_id):
 @login_required
 def requests():
     user_to = User.query.get(session['user_id'])
-    reqs = FriendRequest.query.filter_by(id=1).all()
+    reqs = FriendRequest.query.filter_by(user_sent_to=user_to.id).all()
     users_from = []
     for r in reqs:
         user = User.query.get(r.user_sent_from)
         users_from.append(user)
-    return render_template('requests.html',users_from=users_from)
+    l = len(users_from)
+    return render_template('requests.html',users_from=users_from,len=l)
 
 @users_blueprint.route('/user/requests/<int:request_id>/accept/')
 @login_required
 def accept(request_id):
-    request = FriendRequest.query.get(request_id)
+    request = get_object_or_404(FriendRequest,FriendRequest.id == request_id)
     if session['user_id'] == request.user_sent_to:
         request.accept()
         flash('Request accepted')
@@ -135,7 +127,7 @@ def accept(request_id):
 @users_blueprint.route('/user/requests/<int:request_id>/reject/')
 @login_required
 def reject(request_id):
-    request = FriendRequest.query.get(request_id)
+    request = get_object_or_404(FriendRequest,FriendRequest.id == request_id)
     if session['user_id'] == request.user_sent_to:
         request.reject()
         flash('Request rejected')
@@ -153,7 +145,7 @@ def friends():
 @users_blueprint.route('/user/friends/<int:user_id>/delete/')
 @login_required
 def delete_friend(user_id):
-    friend = User.query.get(user_id)
+    friend = get_object_or_404(User,User.id == user_id)
     user = User.query.get(session['user_id'])
     if user.is_friend(friend):
         user.delete_friend(friend)

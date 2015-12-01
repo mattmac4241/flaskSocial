@@ -4,9 +4,13 @@
 <div class="container">
     <div class="row">
         <div class="name">
-        	{%for m in messages%}
-            <h1>{{m.content}}</h1>
-            {%endfor%}
+        	{% if messages.first() is not none%}
+	        	{%for m in messages%}
+	            <h1>{{m.content}}</h1>
+	            {%endfor%}
+	        {%else%}
+	        	<h1>No messages present</h1>
+	        {%endif%}
         </div>
         <div>
     </div>

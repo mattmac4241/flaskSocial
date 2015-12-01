@@ -4,10 +4,14 @@
 <div class="container">
     <div class="row">
         <div class="name">
-        	{%for user in users_from%}
-            <h1>{{user.user_name}}</h1>
-            {%endfor%}
-        </div>
+        	{%if len > 0%}
+	        	{%for user in users_from%}
+	            <h1>{{user.user_name}}</h1>
+	            {%endfor%}
+	        {%else%}
+	        	<h1>No Requests at this time</h1>
+	        {%endif%}
+       	 </div>
         <div>
     </div>
 </div>
