@@ -2,14 +2,20 @@
 
 {%block content%}
 <div class="container">
+	<h1>Friend Requests</h1>
+	<hr>
     <div class="row">
         <div class="name">
         	{%if len > 0%}
-	        	{%for user in users_from%}
-	            <h1>{{user.user_name}}</h1>
+	        	{%for req,user in users_from%}
+	        	<a href="/user/{{user.id}}/">{{user.user_name}}</a>
+	        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	        	<a href="/user/requests/{{req.id}}/accept/">Accept Request<i class="glyphicon glyphicon-plus"></i>
+	        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="/user/requests/{{req.id}}/reject/">Reject Request<i class="glyphicon glyphicon-remove"></i>
 	            {%endfor%}
 	        {%else%}
-	        	<h1>No Requests at this time</h1>
+	        	<p>No Requests at this time</p>
 	        {%endif%}
        	 </div>
         <div>

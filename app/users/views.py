@@ -66,6 +66,8 @@ def logout():
 def profile(user_id):
     user = get_object_or_404(User,User.id == user_id)
     user_profile = user.id == session['user_id']
+    u = User.query.get(session['user_id'])
+    friends = u in user.friends
     if request.method == 'POST':
         print request.form 
         message = Message(
@@ -75,10 +77,10 @@ def profile(user_id):
             )
         db.session.add(message)
         db.session.commit()
-    return render_template('user.html',user=user,user_profile=user_profile)
+    return render_template('user.html',user=user,user_profile=user_profile,friends=friends)
 
 
-@users_blueprint.route('/user/<int:user_id>/add_friend/')
+@users_blueprint.route('/user/<int:user_id>/add_friend/',methods=['GET','POST'])
 @login_required
 def add_friend(user_id):
     check = FriendRequest.query.filter_by(user_sent_from = session['user_id'],user_sent_to = user_id).first() #get friend request
@@ -107,7 +109,7 @@ def requests():
     users_from = []
     for r in reqs:
         user = User.query.get(r.user_sent_from)
-        users_from.append(user)
+        users_from.append((r,user))
     l = len(users_from)
     return render_template('requests.html',users_from=users_from,len=l)
 
@@ -150,9 +152,9 @@ def delete_friend(user_id):
     if user.is_friend(friend):
         user.delete_friend(friend)
         flash('User removed from friends list')
-        return redirect(url_for('my_profile'))
+        return redirect(url_for('users.friends'))
     else:
-        return redirect(url_for('my_profile'))
+        return redirect(url_for('users.friends'))
 
 @users_blueprint.route('/user/')
 @login_required

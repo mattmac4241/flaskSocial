@@ -38,7 +38,7 @@
               <li><a href="{{url_for('groups.groups') }}">Groups</a></li>
               <li><a href="{{url_for('users.friends') }}">Friends</a></li>
               <li><a href="{{url_for('messages.messages')}}">Messages</a><li>
-
+              <li><a href="{{url_for('users.requests')}}">Requests</a></li>
             {% endif %}
           </ul>
           {% if session.logged_in %}

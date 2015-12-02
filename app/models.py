@@ -1,6 +1,10 @@
 from app import db,app
 import datetime
 
+
+
+
+
 association_table = db.Table('association_table',
     db.Column('user_id', db.Integer, db.ForeignKey('posts.id')),
     db.Column('post_id', db.Integer, db.ForeignKey('users.id'))
@@ -62,6 +66,7 @@ class User(db.Model):
 		if user in self.friends:
 			self.friends.remove(user)
 			user.friends.remove(self)
+			db.session.commit()
 			return self
 
 	def is_friend(self,user):
