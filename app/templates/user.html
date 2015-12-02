@@ -7,7 +7,9 @@
             <h1>{{user.user_name}}</h1>
         </div>
         <div>
-            <li><a href="{{url_for('posts.create_post')}}">Create Post</a></li>
+        	{%if user_profile%}
+           	 <li><a href="{{url_for('posts.create_post')}}">Create Post</a></li>
+           	{%endif%}
     </div>
 </div>
 {%if not user_profile %}
@@ -38,5 +40,14 @@
 </div>
 </div>
 {%endif%}
+<hr>
+<div>
+	{%for post in posts%}
+		<a href="/post/{{post.id}}/">{{post.title}}</a>
+		<hr>
+	{%endfor%}
+
+</div>
+
 
 {%endblock%}

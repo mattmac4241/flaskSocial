@@ -18,7 +18,9 @@ def create_post():
 		post = Post(
 			title = request.form['title'],
 			content = request.form['content'],
-			poster = user.id
+			poster = user.id,
+			poster_name = user.user_name,
+			self_post = True
 			)
 		
 		try:
@@ -27,7 +29,8 @@ def create_post():
 		except IntegrityError:
 			flash("Something went wrong")
 			return render_template('create_post.html',error=error)
-	return render_template('create_post.html',user=True)
+		return redirect(url_for('users.my_profile'))
+	return render_template('create_post.html',user=True,self=False)
 
 #Display a post
 @posts_blueprint.route('/post/<int:post_id>/')

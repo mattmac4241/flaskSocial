@@ -70,6 +70,10 @@ class User(db.Model):
 		else:
 			return False
 
+	def add_post(self,post):
+		self.posts.append(post)
+		db.session.commit()
+
 	
 class Post(db.Model):
 	__tablename__ = 'posts'
@@ -82,12 +86,14 @@ class Post(db.Model):
 	time_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow())
 	group = db.Column(db.Integer,db.ForeignKey('groups.id'))
 	poster_name = db.Column(db.String)
+	self_post = db.Column(db.Boolean,default=True)
 
-	def __init__(self,title,content,poster,poster_name):
+	def __init__(self,title,content,poster,poster_name,self_post):
 		self.title = title
 		self.content = content
 		self.poster = poster
 		self.poster_name = poster_name
+		self.self_post = self_post
 
 	def like(self,user):
 		self.likes.append(user)

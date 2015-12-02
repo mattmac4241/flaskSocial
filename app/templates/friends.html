@@ -2,10 +2,18 @@
 
 {%block content%}
 <div class="container">
+	<h1> {{user.user_name}}'s Friends</h1>
+	<hr>
     <div class="row">
         <div class="name">
         	{%for friend in user.friends%}
-            <h1>{{friend.user_name}}</h1>
+        	<a href='/user/{{friend.id}}/'>{{friend.user_name}}</a>
+        	&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+
+        	<a href="/user/friends/{{friend.id}}/delete/">Remove Friend<i class="glyphicon glyphicon-remove"></i></a> 
+
+
+        	<hr>
             {%endfor%}
         </div>
         <div>

@@ -2,7 +2,7 @@ from functools import wraps
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
 from .forms import RegisterForm,LoginForm
-from app.models import User,FriendRequest
+from app.models import User,FriendRequest,Post
 from app import db,bcrypt
 from app.helpers import login_required,get_object_or_404
 
@@ -158,7 +158,7 @@ def delete_friend(user_id):
 @login_required
 def my_profile():
     user = User.query.get(session['user_id'])
-    return render_template('user.html',user=user,user_profile = True)
-
-
-
+    posts = Post.query.filter_by(poster=user.id,self_post=True)
+    for p in posts:
+        print p.title
+    return render_template('user.html',user=user,user_profile = True,posts=posts)

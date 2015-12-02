@@ -21,7 +21,7 @@ def groups():
 def group_page(group_id):
     group = get_object_or_404(Group,Group.id == group_id)
     user = User.query.get(session['user_id'])
-    return render_template('group.html',group=group,user=user)
+    return render_template('group.html',group=group,user=userr)
 
 @groups_blueprint.route('/groups/create/',methods=['GET','POST'])
 @login_required
@@ -59,7 +59,8 @@ def create_post(group_id):
             title = request.form['title'],
             content = request.form['content'],
             poster = user.id,
-            poster_name = user.user_name
+            poster_name = user.user_name,
+            self_post = False
             )
         try:
             db.session.add(post)
@@ -145,8 +146,6 @@ def get_admins(group_id):
 def like_post(post_id,group_id):
     post = get_object_or_404(Post,Post.id == post_id)
     user = User.query.get(session['user_id'])
-    for u in post.likes:
-        print u.user_name
     if user not in post.likes:
         post.like(user)
     elif user in post.likes:
