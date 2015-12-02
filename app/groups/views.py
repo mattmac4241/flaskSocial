@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
-from app.models import User,Group 
+from app.models import User,Group,Post
 from app import db
 from .forms import GroupForm
 from app.helpers import login_required,get_object_or_404
@@ -41,11 +41,34 @@ def create_group():
         try:
             db.session.add(new_group)
             db.session.commit()
-            return redirect(url_for('groups.group_page',id=new_group.id))
+            return redirect(url_for('groups.group_page',group_id=new_group.id))
         except IntegrityError:
             flash('Group name already taken')
             return render_template('create_group.html',form=form)
     return render_template('create_group.html',form=form)
+
+
+@groups_blueprint.route('/groups/<int:group_id>/create_group_post/',methods=['GET','POST'])
+@login_required
+def create_post(group_id):
+    user = User.query.get(session['user_id'])
+    group = get_object_or_404(Group,Group.id == group_id)
+    if request.method == 'POST':
+        post = Post(
+            title = request.form['title'],
+            content = request.form['content'],
+            poster = user.id,
+            poster_name = user.user_name
+            )
+        try:
+            db.session.add(post)
+            db.session.commit()
+            group.add_post(post)
+        except IntegrityError:
+            flash("Something went wrong")
+        return redirect(url_for('groups.group_page',group_id=group_id))
+    return render_template('create_post.html',user=False,group=group)
+
 
 @groups_blueprint.route('/groups/<int:group_id>/join/')
 @login_required

@@ -14,7 +14,6 @@ def login_required(test):
             return redirect(url_for('users.login'))
     return wrap
 
-
 def get_object_or_404(model, *criterion):
     try:
         return model.query.filter(*criterion).one()

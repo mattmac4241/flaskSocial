@@ -3,7 +3,11 @@
 
 <div class="row">
       <div class="col-lg-6">
+        {% if user %}
         <form method="POST"  action="/create_post/" method="POST">
+          {%else%}
+          <form method="POST"  action="/groups/{{group.id}}/create_group_post/" method="POST">
+        {%endif%}
           <div class="input-group">
              <label for="title" class="h4">Title</label>
            	 <input type="text" class="form-control" name="title" id="title" placeholder="Enter title" required>

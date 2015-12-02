@@ -8,7 +8,15 @@
             <br>
         </div>
         <div>
+            <li><a href="/groups/{{group.id}}/create_group_post/">Create Post</a></li>
     </div>
+       <hr>
+       <div>
+       	{%for post in group.group_posts%}
+       		<h4>{{post.poster_name}}: {{post.title}}</h4>
+       		<hr>
+       	{%endfor%}
+       </div>
 </div>
 
 {%endblock%}

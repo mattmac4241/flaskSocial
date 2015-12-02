@@ -26,7 +26,15 @@ admins = db.Table('admins',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+post_likes = db.Table('post_likes',
+	db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
+	db.Column('user_id',db.Integer,db.ForeignKey('users.id'))
+)
 
+comment_likes = db.Table('comment_likes',
+	db.Column('comment_id',db.Integer,db.ForeignKey('comments.id')),
+	db.Column('user_id',db.Integer,db.ForeignKey('users.id'))
+)
 
 class User(db.Model):
 	__tablename__ = 'users'
@@ -65,24 +73,35 @@ class User(db.Model):
 	
 class Post(db.Model):
 	__tablename__ = 'posts'
+
 	id = db.Column(db.Integer,primary_key=True)
 	title = db.Column(db.String,nullable=False)
 	content = db.Column(db.String,nullable=False)
 	poster = db.Column(db.Integer, db.ForeignKey('users.id'))
-	likes  = db.relationship('User', 
-                               secondary=friends, 
-                               primaryjoin=(friends.c.friend1_id == id), 
-                               secondaryjoin=(friends.c.friend2_id == id), 
-                               backref=db.backref('users', lazy='dynamic'), 
-                               lazy='dynamic')
+	likes = db.relationship('User',secondary=post_likes,backref=db.backref('post_likes', lazy='dynamic'))
+	time_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+	group = db.Column(db.Integer,db.ForeignKey('groups.id'))
+	poster_name = db.Column(db.String)
 
-	def __init__(self,title,content,poster):
+	def __init__(self,title,content,poster,poster_name):
 		self.title = title
 		self.content = content
 		self.poster = poster
+		self.poster_name = poster_name
+
+	def like(self,user):
+		self.likes.append(user)
+		db.session.commit()
+
+	def unlike(self,user):
+		self.likes.remove(user)
+		db.session.commit()
+
+
 
 class FriendRequest(db.Model):
 	__tablename__ = 'friend_requests'
+
 	id = db.Column(db.Integer, primary_key = True)
 	user_sent_from = db.Column(db.Integer, db.ForeignKey('users.id'))
 	user_sent_to = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -124,17 +143,45 @@ class Message(db.Model):
 		self.user_to = user_to
 		self.content = content
 
+class Comment(db.Model):
+	__tablename__ = 'comments'
+
+	id = db.Column(db.Integer,primary_key=True)
+	content = db.Column(db.String,nullable=False)
+	poster = db.Column(db.Integer, db.ForeignKey('users.id'))
+	likes = db.relationship('User',secondary=comment_likes,backref=db.backref('comment_likes',lazy='dynamic'))
+	time_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+	poster_name = db.Column(db.String)
+	parent = db.Column(db.Integer,db.ForeignKey('comments.id'))
+
+	def __init__(self,content,poster,parent,poster_name):
+		self.content = content
+		self.poster = poster
+		self.parent = parent
+		self.poster_name = poster_name
+	
+	def delete(self):
+		Comment.query.filter_by(id=self.id).delete()
+		db.session.commit()
+
+	def like(self,user):
+		self.likes.append(user)
+		db.session.commit()
+
+	def unlike(self,user):
+		self.likes.remove(user)
+		db.session.commit()
+
 class Group(db.Model):
 	__tablename__ = 'groups'
 
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String,unique=True,nullable=False)
 	members = db.relationship('User',secondary=members,backref=db.backref('group_users', lazy='dynamic'))
-	group_posts = db.relationship('Post',secondary=group_posts,backref=db.backref('posts', lazy='dynamic'))
+	group_posts = db.relationship('Post',secondary=group_posts,backref=db.backref('group_posts', lazy='dynamic'))
 	admins = db.relationship('User',secondary=admins,backref=db.backref('admin_users', lazy='dynamic'))
 	description = db.Column(db.String)
 	private = db.Column(db.Boolean)
-	slug = db.String(db.String)
 
 	def __init__(self,name,description,admin,private):
 		self.name = name
@@ -164,6 +211,16 @@ class Group(db.Model):
 		user = User.query.get(user)
 		user.groups.remove(self)
 		db.session.commit()
+
+	def make_admin(self,user):
+		self.admins.append(user)
+		db.session.commit()
+
+	def add_post(self,post):
+		self.group_posts.append(post)
+		db.session.commit()
+
+
 
 
 

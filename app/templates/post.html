@@ -11,5 +11,20 @@
         <div>
     </div>
 </div>
+<hr>
+<form method="POST" action="/posts/{{post.id}}/create_comment/">
+	<div class="make_comment">
+		<label for="content" class="h4 ">Comment</label>
+	        <textarea id="content" name="content" class="form-control" rows="5" placeholder="Enter your comment" required></textarea>
+	</div>
+	<input type="submit" class="btn btn-primary" value="Post"/>
+</form>
+<hr>
+<div>
+	{%for com in post.comments%}
+		<p>{{com.poster_name}}: {{com.content}}</p>
+		<hr>
+	{%endfor%}
+</div>
 
 {%endblock%}
