@@ -14,7 +14,7 @@ groups_blueprint = Blueprint('groups',__name__)
 def groups():
     user = User.query.get(session['user_id'])
     groups = user.groups
-    return render_template('groups.html',groups=groups,user=user)
+    return render_template('groups.html',groups=groups,user=user,search=False)
 
 @groups_blueprint.route('/groups/<int:group_id>/')
 @login_required

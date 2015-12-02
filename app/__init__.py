@@ -4,6 +4,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
+from sqlalchemy_searchable import make_searchable
 
 
 app = Flask(__name__)
@@ -17,13 +18,15 @@ bcrypt = Bcrypt(app)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
-
+make_searchable()
+db.configure_mappers()
 
 from users.views import users_blueprint
 from posts.views import posts_blueprint
 from messages.views import message_blueprint 
 from groups.views import groups_blueprint 
 from comments.views import comments_blueprint 
+from search.views import search_blueprint
 
 
 app.register_blueprint(users_blueprint)
@@ -31,3 +34,4 @@ app.register_blueprint(posts_blueprint)
 app.register_blueprint(message_blueprint)
 app.register_blueprint(groups_blueprint)
 app.register_blueprint(comments_blueprint)
+app.register_blueprint(search_blueprint)

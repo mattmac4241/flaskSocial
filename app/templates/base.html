@@ -26,19 +26,21 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-           <a class="navbar-brand" href="/user/">Social</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             {% if not session.logged_in %}
+              <a class="navbar-brand" href="/login/">GroupR</a>
               <li><a href="{{ url_for('users.register') }}">Signup</a></li>
               <li><a href="{{url_for('users.login')}}">Login</a></li>
             {% else %}
+             <a class="navbar-brand" href="/user/">GroupR</a>
               <li><a href="{{ url_for('users.logout') }}">Signout</a></li>
               <li><a href="{{url_for('groups.groups') }}">Groups</a></li>
               <li><a href="{{url_for('users.friends') }}">Friends</a></li>
               <li><a href="{{url_for('messages.messages')}}">Messages</a><li>
               <li><a href="{{url_for('users.requests')}}">Requests</a></li>
+              <li><a href="{{url_for('search.search_groups')}}"?>Search Groups</a></li>
             {% endif %}
           </ul>
           {% if session.logged_in %}
