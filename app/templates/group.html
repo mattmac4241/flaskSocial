@@ -13,7 +13,7 @@
        <hr>
        <div>
        	{%for post in group.group_posts%}
-       		<h4>{{post.poster_name}}: {{post.title}}</h4>
+       		 <a href="/post/{{post.id}}">{{post.title}}</a>
        		<hr>
        	{%endfor%}
        </div>

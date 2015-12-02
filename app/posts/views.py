@@ -34,7 +34,7 @@ def create_post():
 def post(post_id):
 	post = get_object_or_404(Post,Post.id==post_id)
 	comments = Comment.query.filter_by(parent=post.id)
-	return render_template('post.html',post=post)
+	return render_template('post.html',post=post,comments=comments)
 
 @posts_blueprint.route('/post/<int:post_id>/delete/')
 @login_required

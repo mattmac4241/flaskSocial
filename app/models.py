@@ -152,7 +152,7 @@ class Comment(db.Model):
 	likes = db.relationship('User',secondary=comment_likes,backref=db.backref('comment_likes',lazy='dynamic'))
 	time_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow())
 	poster_name = db.Column(db.String)
-	parent = db.Column(db.Integer,db.ForeignKey('comments.id'))
+	parent = db.Column(db.Integer,db.ForeignKey('posts.id'))
 
 	def __init__(self,content,poster,parent,poster_name):
 		self.content = content
