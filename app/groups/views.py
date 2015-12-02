@@ -21,7 +21,8 @@ def groups():
 def group_page(group_id):
     group = get_object_or_404(Group,Group.id == group_id)
     user = User.query.get(session['user_id'])
-    return render_template('group.html',group=group,user=userr)
+    member = user in group.members #check if user is member and grant certain privaliges if so
+    return render_template('group.html',group=group,user=user,member=member)
 
 @groups_blueprint.route('/groups/create/',methods=['GET','POST'])
 @login_required
@@ -49,25 +50,30 @@ def create_group():
     return render_template('create_group.html',form=form)
 
 
+#for group post displayed on group not user profile
 @groups_blueprint.route('/groups/<int:group_id>/create_group_post/',methods=['GET','POST'])
 @login_required
 def create_post(group_id):
     user = User.query.get(session['user_id'])
     group = get_object_or_404(Group,Group.id == group_id)
-    if request.method == 'POST':
-        post = Post(
-            title = request.form['title'],
-            content = request.form['content'],
-            poster = user.id,
-            poster_name = user.user_name,
-            self_post = False
-            )
-        try:
-            db.session.add(post)
-            db.session.commit()
-            group.add_post(post)
-        except IntegrityError:
-            flash("Something went wrong")
+    if user in group.members:
+        if request.method == 'POST':
+            post = Post(
+                title = request.form['title'],
+                content = request.form['content'],
+                poster = user.id,
+                poster_name = user.user_name,
+                self_post = False
+                )
+            try:
+                db.session.add(post)
+                db.session.commit()
+                group.add_post(post)
+            except IntegrityError:
+                flash("Something went wrong")
+            return redirect(url_for('groups.group_page',group_id=group_id))
+    else:
+        flash('NOT A MEMBER,JOIN THE GROUP!')
         return redirect(url_for('groups.group_page',group_id=group_id))
     return render_template('create_post.html',user=False,group=group)
 

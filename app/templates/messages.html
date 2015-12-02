@@ -2,11 +2,16 @@
 
 {%block content%}
 <div class="container">
+	<h1>Messages</h1>
+	<hr>
     <div class="row">
         <div class="name">
-        	{% if messages.first() is not none%}
-	        	{%for m in messages%}
-	            <h1>{{m.content}}</h1>
+        	{% if are_messages%}
+	        	{%for m,u in messages%}
+	        		<a href="/messages/{{m.id}}/">{{u.user_name}} : {{m.content |truncate(9, True)}}</a>
+	        		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	        		<a href="/messages/{{m.id}}/delete/">Delete Message<i class="glyphicon glyphicon-remove"></i>
+	        		<hr>
 	            {%endfor%}
 	        {%else%}
 	        	<h1>No messages present</h1>

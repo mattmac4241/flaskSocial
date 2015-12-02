@@ -9,7 +9,7 @@ from app.helpers import login_required,get_object_or_404
 posts_blueprint = Blueprint('posts',__name__)
 
 
-#Create a new post
+#Create a new post for a person not a group, displayed on user's profile
 @posts_blueprint.route('/create_post/',methods=['GET','POST'])
 @login_required
 def create_post():
@@ -39,7 +39,11 @@ def post(post_id):
 	post = get_object_or_404(Post,Post.id==post_id)
 	print post.time_posted
 	comments = Comment.query.filter_by(parent=post.id)
-	return render_template('post.html',post=post,comments=comments)
+	com = []
+	for c in comments:
+		user = User.query.get(c.poster)
+		com.append((c,user))
+	return render_template('post.html',post=post,com=com)
 
 #Delete a post
 @posts_blueprint.route('/post/<int:post_id>/delete/')

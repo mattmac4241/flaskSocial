@@ -8,16 +8,24 @@
             <br>
         </div>
         <div>
+        	{%if member%}
             <li><a href="/groups/{{group.id}}/create_group_post/">Create Post</a></li>
+            {%else%}
+            <li><a href="/groups/{{group.id}}/join/">Join Group</a></li>
+            {%endif%}
     </div>
        <hr>
        <div>
        	{%for post in group.group_posts%}
        		<a href="/groups/{{group.id}}/post/{{post.id}}/like/">
        		{%if user in post.likes%}
+	        	{%if member%}
        			<i class="glyphicon glyphicon-star"></i></a> 
+       			{%endif%}
        		 {%else%}
-      			<i class="glyphicon glyphicon-star-empty"></i></a> 
+	        	{%if member%}
+	      			<i class="glyphicon glyphicon-star-empty"></i></a> 
+	      		{%endif%}
       		{%endif%}
        		 <a href="/post/{{post.id}}">{{post.title}}</a> 
        		<hr>

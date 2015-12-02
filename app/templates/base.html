@@ -35,6 +35,10 @@
               <li><a href="{{url_for('users.login')}}">Login</a></li>
             {% else %}
               <li><a href="{{ url_for('users.logout') }}">Signout</a></li>
+              <li><a href="{{url_for('groups.groups') }}">Groups</a></li>
+              <li><a href="{{url_for('users.friends') }}">Friends</a></li>
+              <li><a href="{{url_for('messages.messages')}}">Messages</a><li>
+
             {% endif %}
           </ul>
           {% if session.logged_in %}

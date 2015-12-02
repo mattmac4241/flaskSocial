@@ -12,7 +12,6 @@ message_blueprint = Blueprint('messages',__name__)
 def send_message(user_id):
 	if request.method == 'POST':
 		if user_id != session['user_id']:
-			print request.form 
 			message = Message(
 				user_to = User.query.get(user_id).id,
 				user_from = User.query.get(session['user_id']).id,
@@ -30,9 +29,13 @@ def send_message(user_id):
 @message_blueprint.route('/user/messages/')
 @login_required
 def messages():
-	messages = Message.query.filter_by(user_to=session['user_id'])
-	print messages.first()
-	return render_template('messages.html',messages=messages)
+	m = Message.query.filter_by(user_to=session['user_id'])
+	messages = []
+	for mes in m:
+		user= User.query.get(mes.user_from)
+		messages.append((mes,user))
+	are_messages = len(messages) > 0
+	return render_template('messages.html',messages=messages,are_messages=are_messages)
 
 @message_blueprint.route('/messages/<int:message_id>/')
 @login_required

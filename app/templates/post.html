@@ -21,8 +21,8 @@
 </form>
 <hr>
 <div>
-	{%for com in comments%}
-		<p>{{com.poster_name}}: {{com.content}}</p>
+	{%for c,u in com%}
+		<p><a href="/user/{{u.id}}/">{{u.user_name}}</a>: {{c.content}}</p>
 		<hr>
 	{%endfor%}
 </div>
