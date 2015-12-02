@@ -9,10 +9,11 @@ from app.helpers import login_required,get_object_or_404
 posts_blueprint = Blueprint('posts',__name__)
 
 
+#Create a new post
 @posts_blueprint.route('/create_post/',methods=['GET','POST'])
 @login_required
 def create_post():
-	user = User.query.get(session['user_id'])
+	user = User.query.get(session['user_id']) 
 	if request.method == 'POST':
 		post = Post(
 			title = request.form['title'],
@@ -28,14 +29,16 @@ def create_post():
 			return render_template('create_post.html',error=error)
 	return render_template('create_post.html',user=True)
 
-
+#Display a post
 @posts_blueprint.route('/post/<int:post_id>/')
 @login_required
 def post(post_id):
 	post = get_object_or_404(Post,Post.id==post_id)
+	print post.time_posted
 	comments = Comment.query.filter_by(parent=post.id)
 	return render_template('post.html',post=post,comments=comments)
 
+#Delete a post
 @posts_blueprint.route('/post/<int:post_id>/delete/')
 @login_required
 def delete_post(post_id):
@@ -58,9 +61,15 @@ def delete_post(post_id):
 def like_post(post_id):
 	post = get_object_or_404(Post,Post.id == post_id)
 	user = User.query.get(session['user_id'])
+	for u in post.likes:
+		print u.user_name
 	if user not in post.likes:
+		print "GERER"
 		post.like(user)
 	elif user in post.likes:
 		post.unlike(user)
 	return redirect(url_for('posts.post',post_id=post_id))
+
+
+
 

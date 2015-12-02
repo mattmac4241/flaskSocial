@@ -13,7 +13,13 @@
        <hr>
        <div>
        	{%for post in group.group_posts%}
-       		 <a href="/post/{{post.id}}">{{post.title}}</a>
+       		<a href="/groups/{{group.id}}/post/{{post.id}}/like/">
+       		{%if user in post.likes%}
+       			<i class="glyphicon glyphicon-star"></i></a> 
+       		 {%else%}
+      			<i class="glyphicon glyphicon-star-empty"></i></a> 
+      		{%endif%}
+       		 <a href="/post/{{post.id}}">{{post.title}}</a> 
        		<hr>
        	{%endfor%}
        </div>

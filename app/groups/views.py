@@ -14,13 +14,14 @@ groups_blueprint = Blueprint('groups',__name__)
 def groups():
     user = User.query.get(session['user_id'])
     groups = user.groups
-    return render_template('groups.html',groups=groups)
+    return render_template('groups.html',groups=groups,user=user)
 
 @groups_blueprint.route('/groups/<int:group_id>/')
 @login_required
 def group_page(group_id):
     group = get_object_or_404(Group,Group.id == group_id)
-    return render_template('group.html',group=group)
+    user = User.query.get(session['user_id'])
+    return render_template('group.html',group=group,user=user)
 
 @groups_blueprint.route('/groups/create/',methods=['GET','POST'])
 @login_required
@@ -139,7 +140,18 @@ def get_admins(group_id):
     admins = group.admins
     return render_template('admins.html',admins=admins)
 
-
+@groups_blueprint.route('/groups/<int:group_id>/post/<int:post_id>/like/')
+@login_required
+def like_post(post_id,group_id):
+    post = get_object_or_404(Post,Post.id == post_id)
+    user = User.query.get(session['user_id'])
+    for u in post.likes:
+        print u.user_name
+    if user not in post.likes:
+        post.like(user)
+    elif user in post.likes:
+        post.unlike(user)
+    return redirect(url_for('groups.group_page',group_id=group_id))
 
 
 

@@ -178,7 +178,7 @@ class Group(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String,unique=True,nullable=False)
 	members = db.relationship('User',secondary=members,backref=db.backref('group_users', lazy='dynamic'))
-	group_posts = db.relationship('Post',secondary=group_posts,backref=db.backref('group_posts', lazy='dynamic'))
+	group_posts = db.relationship('Post',secondary=group_posts,backref=db.backref('group_posts', lazy='dynamic',order_by=Post.time_posted))
 	admins = db.relationship('User',secondary=admins,backref=db.backref('admin_users', lazy='dynamic'))
 	description = db.Column(db.String)
 	private = db.Column(db.Boolean)
