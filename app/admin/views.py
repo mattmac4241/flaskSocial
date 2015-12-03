@@ -97,7 +97,6 @@ def remove_member(group_id,user_id):
         if not group.is_admin(user):
             group.members.remove(user)
             db.session.commit()
-            #group.leave(user)
             flash('Member removed')
         else:
             flash('Admins can remove admins')

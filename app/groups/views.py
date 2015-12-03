@@ -136,48 +136,6 @@ def members(group_id):
     members = group.members
     return render_template('members.html',members=members,admins=admins,is_admin=is_admin,group=group)
 
-
-@groups_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/remove/')
-@login_required
-def remove_member(group_id,user_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    admin = User.query.get(session['user_id'])
-    if group.is_admin(admin):
-        user = get_object_or_404(User,User.id == user_id)
-        if not group.is_admin(user):
-            group.members.remove(user)
-            db.session.commit()
-            #group.leave(user)
-            flash('Member removed')
-        else:
-            flash('Admins can remove admins')
-        return redirect(url_for('groups.members',group_id=group_id))
-    else:
-        flash('You do not have permission to remove someone from a group')
-        return redirect(url_for('groups.group_page',group_id=group_id))
-
-
-#make a user an admin
-@groups_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/make_admin/')
-@login_required
-def make_admin(group_id,user_id):
-    admin = User.query.get(session['user_id'])
-    group = get_object_or_404(Group,Group.id == group_id)
-    if group.is_admin(user): #check if current user is an admin
-        user = get_object_or_404(User,User.id == user_id)
-        group.make_admin(user)
-        redirect(url_for('groups.members',group_id=group_id))
-    else:
-        flash('You do not have permission for that')
-        redirect(url_for('groups.group_page',group_id=group_id))
-
-@groups_blueprint.route('/groups/<int:group_id>/admins/')
-@login_required
-def get_admins(group_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    admins = group.admins
-    return render_template('admins.html',admins=admins)
-
 @groups_blueprint.route('/groups/<int:group_id>/post/<int:post_id>/like/')
 @login_required
 def like_post(post_id,group_id):
@@ -188,22 +146,6 @@ def like_post(post_id,group_id):
     elif user in post.likes:
         post.unlike(user)
     return redirect(url_for('groups.group_page',group_id=group_id))
-
-#Delete a post
-@groups_blueprint.route('/group/<int:group_id>/post/<int:post_id>/delete/')
-@login_required
-def delete_post(group_id,post_id):
-    post = get_object_or_404(Post,Post.id==post_id)
-    if post.poster == session['user_id']:       
-        group = get_object_or_404(Group,Group.id==group_id)
-        group.group_posts.remove(post)
-        db.session.commit()
-        post.delete()
-        flash('POST deleted')
-        return redirect(url_for('groups.group_page',group_id=group_id))
-    else:
-        flash("You do not have permission for that")
-        return redirect(url_for('posts.post',post_id = post_id))
 
 
 
