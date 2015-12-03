@@ -1,6 +1,6 @@
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
-from app.models import User,GroupRequest,Group
+from app.models import User,GroupRequest,Group,Post
 from app import db,bcrypt
 from app.helpers import login_required,get_object_or_404
 
