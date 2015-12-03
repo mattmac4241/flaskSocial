@@ -116,6 +116,7 @@ class Post(db.Model):
         db.session.commit()
 
     def delete(self):
+        self.likes = []
         Post.query.filter_by(id=self.id).delete()
         db.session.commit()
 
