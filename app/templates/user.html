@@ -8,14 +8,14 @@
         </div>
         <div>
         	{%if user_profile%}
-           	 <li><a href="{{url_for('posts.create_post')}}">Create Post</a></li>
+           	 <a href="{{url_for('posts.create_post')}}" class="btn btn-info btn-sm">Add Post</a>
            	{%endif%}
     </div>
 </div>
 {%if not user_profile %}
 	{%if not friends%}
 	<form method="POST"  action="/user/{{user.id}}/add_friend/" method="POST">
-		<input type="submit" class="btn btn-primary" value="Send Friend Request">
+		<input type="submit" class="btn btn-success btn-sm" value="Send Friend Request">
 	</form>
 	{%endif%}
 <br>
@@ -44,16 +44,22 @@
 		</div>
 	</div>
 	</div>
-</div>
-</div>
+
 {%endif%}
 <hr>
 <div>
-	{%for post in posts%}
-		<a href="/post/{{post.id}}/">{{post.title}}</a>
-		<hr>
+	{%for post,x in posts%}
+		<a href="/post/{{post.id}}/">{{post.title}}</a> 
+		{%if user_profile%}
+	     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="/post/{{post.id}}/delete/" class="btn btn-danger btn-sm">Remove Post<i class="glyphicon glyphicon-remove"></i></a> 
+		{%endif%}
+      	<hr>
 	{%endfor%}
-
+</div>
+</div>
+</div>
 </div>
 
 

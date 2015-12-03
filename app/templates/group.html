@@ -9,14 +9,32 @@
         </div>
         <div>
         	{%if member%}
-            <li><a href="/groups/{{group.id}}/create_group_post/">Create Post</a></li>
+          <div class="btn-group">
+            <a href="/groups/{{group.id}}/create_group_post/" class="btn btn-primary btn-sm">Create Post</a>
+            <!-- Split button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-success btn-sm">Sort By</button>
+              <button type="button" class="btn btn-success dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="/groups/{{group.id}}/new/">newest</a></li>
+                <li><a href="/groups/{{group.id}}/">most liked</a></li>
+                <li><a href="/groups/{{group.id}}/least/">least liked</a></li>
+                <li><a href="/groups/{{group.id}}/oldest/">oldest</a></li>
+              </ul>
+            </div>
+            <a href="/groups/{{group.id}}/members/" class="btn btn-warning btn-sm">Members</a>
+            <a href="/groups/{{group.id}}/leave/" class="btn btn-danger btn-sm">Leave</a>
             {%else%}
-            <li><a href="/groups/{{group.id}}/join/">Join Group</a></li>
+            <a href="/groups/{{group.id}}/join/" class="btn btn-primary btn-sm">Join Group</a>
             {%endif%}
+          </div>
     </div>
        <hr>
        <div>
-       	{%for post in group.group_posts%}
+       	{%for post,x in posts%}
        		<a href="/groups/{{group.id}}/post/{{post.id}}/like/">
        		{%if user in post.likes%}
 	        	{%if member%}

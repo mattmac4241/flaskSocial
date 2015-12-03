@@ -1,7 +1,7 @@
 from functools import wraps
 from sqlalchemy.orm import exc
 from werkzeug.exceptions import abort
-from flask import session
+from flask import session,flash
 
 #helper function
 def login_required(test):

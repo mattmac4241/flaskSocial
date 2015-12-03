@@ -2,10 +2,13 @@
 
 {%block content%}
 <div class="container">
+	<h1> Members</h1>
+	<hr>
     <div class="row">
         <div class="name">
-        	{%for m in members%}
-            <h1>{{m.user_name}}</h1>
+        	{%for user in members%}
+        	<a href='/user/{{user.id}}/'>{{user.user_name}}</a>
+        	<hr>
             {%endfor%}
         </div>
         <div>

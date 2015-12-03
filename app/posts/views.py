@@ -6,7 +6,6 @@ from app.models import Post,User,Comment
 from app import db,bcrypt
 from app.helpers import login_required,get_object_or_404
 
-
 posts_blueprint = Blueprint('posts',__name__)
 
 
@@ -51,15 +50,11 @@ def post(post_id):
 @login_required
 def delete_post(post_id):
 	post = get_object_or_404(Post,Post.id==post_id)
-	print post.title
-	if post.poster == session['user_id']:
-		comments = Comment.query.filter_by(parent=post_id).all()
-		for comment in comments:
-			comment.delete()
-		db.session.delete(post)
+	if post.poster == session['user_id']:		
+		Post.query.filter_by(id=post_id).delete()
 		db.session.commit()
 		flash('POST deleted')
-		return redirect(url_for('users.profile',user_id = session['user_id']))
+		return redirect(url_for('users.my_profile'))
 	else:
 		flash("You do not have permission for that")
 		return redirect(url_for('posts.post',post_id = post_id))
@@ -72,7 +67,6 @@ def like_post(post_id):
 	for u in post.likes:
 		print u.user_name
 	if user not in post.likes:
-		print "GERER"
 		post.like(user)
 	elif user in post.likes:
 		post.unlike(user)

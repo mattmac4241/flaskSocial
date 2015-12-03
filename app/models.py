@@ -115,8 +115,6 @@ class Post(db.Model):
         self.likes.remove(user)
         db.session.commit()
 
-
-
 class FriendRequest(db.Model):
     __tablename__ = 'friend_requests'
 
@@ -236,9 +234,9 @@ class Group(db.Model):
         db.session.commit()
 
     def leave(self,user):
-        self.members.remove(user)
         user = User.query.get(user)
-        user.groups.remove(self)
+        self.members.remove(user)
+        #user.groups.remove()
         db.session.commit()
 
     def make_admin(self,user):

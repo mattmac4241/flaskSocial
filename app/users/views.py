@@ -66,6 +66,10 @@ def profile(user_id):
     user = get_object_or_404(User,User.id == user_id)
     user_profile = user.id == session['user_id']
     u = User.query.get(session['user_id'])
+    posts = Post.query.filter_by(poster=user.id,self_post=True)
+    posts = [(x,x.time_posted) for x in posts]
+    posts.sort(key=lambda x: x[1])
+    posts.reverse()
     friends = u in user.friends
     if request.method == 'POST':
         print request.form 
@@ -76,7 +80,7 @@ def profile(user_id):
             )
         db.session.add(message)
         db.session.commit()
-    return render_template('user.html',user=user,user_profile=user_profile,friends=friends)
+    return render_template('user.html',user=user,user_profile=user_profile,friends=friends,posts=posts)
 
 
 @users_blueprint.route('/user/<int:user_id>/add_friend/',methods=['GET','POST'])
@@ -160,6 +164,7 @@ def delete_friend(user_id):
 def my_profile():
     user = User.query.get(session['user_id'])
     posts = Post.query.filter_by(poster=user.id,self_post=True)
-    for p in posts:
-        print p.title
+    posts = [(x,x.time_posted) for x in posts]
+    posts.sort(key=lambda x: x[1])
+    posts.reverse()
     return render_template('user.html',user=user,user_profile = True,posts=posts)

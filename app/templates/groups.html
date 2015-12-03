@@ -19,11 +19,18 @@
       <br>
       <br>
       <hr>
+      <p>If you don't find what your looking for, Make it!</p>
+      <hr>
     {%endif%}
     <div class="row">
         <div class="name">
         	{%for g in groups%}
         	<a href="/groups/{{g.id}}/">{{g.name}}</a>
+            {%if not search%}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/groups/{{g.id}}/leave/" class="btn btn-danger btn-sm">Leave Group<i class="glyphicon glyphicon-remove"></i></a>
+            {%endif%}
+
         	<hr>
             {%endfor%}
         </div>

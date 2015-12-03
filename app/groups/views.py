@@ -16,13 +16,54 @@ def groups():
     groups = user.groups
     return render_template('groups.html',groups=groups,user=user,search=False)
 
+#sort comments by most liked by default
 @groups_blueprint.route('/groups/<int:group_id>/')
 @login_required
 def group_page(group_id):
     group = get_object_or_404(Group,Group.id == group_id)
+    posts = [(x,len(x.likes)) for x in group.group_posts]
+    posts.sort(key=lambda x: x[1])
+    posts.reverse()
     user = User.query.get(session['user_id'])
     member = user in group.members #check if user is member and grant certain privaliges if so
-    return render_template('group.html',group=group,user=user,member=member)
+    return render_template('group.html',group=group,user=user,member=member,posts=posts)
+
+#sort comments by newest
+@groups_blueprint.route('/groups/<int:group_id>/new/')
+@login_required
+def group_page_new(group_id):
+    group = get_object_or_404(Group,Group.id == group_id)
+    posts = [(x,x.time_posted) for x in group.group_posts]
+    posts.sort(key=lambda x: x[1])
+    posts.reverse()
+    user = User.query.get(session['user_id'])
+    member = user in group.members #check if user is member and grant certain privaliges if so
+    return render_template('group.html',group=group,user=user,member=member,posts=posts)
+
+
+#sort comments by least liked
+@groups_blueprint.route('/groups/<int:group_id>/least/')
+@login_required
+def group_page_least(group_id):
+    group = get_object_or_404(Group,Group.id == group_id)
+    posts = [(x,len(x.likes)) for x in group.group_posts]
+    posts.sort(key=lambda x: x[1])
+    user = User.query.get(session['user_id'])
+    member = user in group.members #check if user is member and grant certain privaliges if so
+    return render_template('group.html',group=group,user=user,member=member,posts=posts)
+
+#sort comments by newest
+@groups_blueprint.route('/groups/<int:group_id>/oldest/')
+@login_required
+def group_page_old(group_id):
+    group = get_object_or_404(Group,Group.id == group_id)
+    posts = [(x,x.time_posted) for x in group.group_posts]
+    posts.sort(key=lambda x: x[1])
+    user = User.query.get(session['user_id'])
+    member = user in group.members #check if user is member and grant certain privaliges if so
+    return render_template('group.html',group=group,user=user,member=member,posts=posts)
+
+
 
 @groups_blueprint.route('/groups/create/',methods=['GET','POST'])
 @login_required
@@ -97,7 +138,7 @@ def leave_group(group_id):
     if user not in group.members:
         flash('You can\'t leave a group you are not apart of')
     else:
-        group.leave(user)
+        group.leave(session['user_id'])
     return redirect(url_for('groups.groups'))
 
 @groups_blueprint.route('/groups/<int:group_id>/members/')

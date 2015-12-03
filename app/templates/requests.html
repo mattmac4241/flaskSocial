@@ -10,9 +10,9 @@
 	        	{%for req,user in users_from%}
 	        	<a href="/user/{{user.id}}/">{{user.user_name}}</a>
 	        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	        	<a href="/user/requests/{{req.id}}/accept/">Accept Request<i class="glyphicon glyphicon-plus"></i>
+	        	<a href="/user/requests/{{req.id}}/accept/" class="btn btn-success btn-sm">Accept Request  <i class="glyphicon glyphicon-plus"></i></a>
 	        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="/user/requests/{{req.id}}/reject/">Reject Request<i class="glyphicon glyphicon-remove"></i>
+				<a href="/user/requests/{{req.id}}/reject/" class="btn btn-danger btn-sm">Reject Request  <i class="glyphicon glyphicon-remove"></i></a>
 	            {%endfor%}
 	        {%else%}
 	        	<p>No Requests at this time</p>

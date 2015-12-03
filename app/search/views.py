@@ -14,9 +14,6 @@ def search_groups():
         print term
         query = db.session.query(Group)
         groups = search(query,term)
-        for g in groups:
-            print "search"
-            print g.name
         return render_template('groups.html',groups=groups,search=True)
     return render_template('groups.html',groups=[],search=True)
 

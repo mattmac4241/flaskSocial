@@ -10,11 +10,11 @@
 	        	{%for m,u in messages%}
 	        		<a href="/messages/{{m.id}}/">{{u.user_name}} : {{m.content |truncate(9, True)}}</a>
 	        		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	        		<a href="/messages/{{m.id}}/delete/">Delete Message<i class="glyphicon glyphicon-remove"></i>
+	        		<a href="/messages/{{m.id}}/delete/" class="btn btn-danger btn-sm">Delete Message<i class="glyphicon glyphicon-remove"></i></a>
 	        		<hr>
 	            {%endfor%}
 	        {%else%}
-	        	<h1>No messages present</h1>
+	        	<p>No messages at this time</p>
 	        {%endif%}
         </div>
         <div>
