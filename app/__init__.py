@@ -27,7 +27,7 @@ from messages.views import message_blueprint
 from groups.views import groups_blueprint 
 from comments.views import comments_blueprint 
 from search.views import search_blueprint
-
+from admin.views import admin_blueprint
 
 app.register_blueprint(users_blueprint)
 app.register_blueprint(posts_blueprint)
@@ -35,3 +35,4 @@ app.register_blueprint(message_blueprint)
 app.register_blueprint(groups_blueprint)
 app.register_blueprint(comments_blueprint)
 app.register_blueprint(search_blueprint)
+app.register_blueprint(admin_blueprint)

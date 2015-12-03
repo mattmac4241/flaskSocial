@@ -6,6 +6,7 @@ from sqlalchemy_searchable import search
 
 search_blueprint = Blueprint('search',__name__)
 
+#return the results for searching for a group
 @search_blueprint.route('/groups/search/',methods=['GET','POST'])
 @login_required
 def search_groups():

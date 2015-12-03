@@ -115,6 +115,10 @@ class Post(db.Model):
         self.likes.remove(user)
         db.session.commit()
 
+    def delete(self):
+        Post.query.filter_by(id=self.id).delete()
+        db.session.commit()
+
 class FriendRequest(db.Model):
     __tablename__ = 'friend_requests'
 
@@ -144,6 +148,31 @@ class FriendRequest(db.Model):
         if user1 not in user2.friends or user2 not in user1.friends:
             FriendRequest.query.filter_by(id=self.id).delete()
             db.session.commit()
+
+#model for joining private group
+class GroupRequest(db.Model):
+    __tablename__ = 'group_requests'
+
+    id = db.Column(db.Integer, primary_key = True)
+    user = db.Column(db.Integer, db.ForeignKey('users.id'))
+    group = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    accepted = db.Column(db.Boolean,default = False)
+
+
+    def __init__(self,user,group):
+        self.user = user
+        self.group = group
+        self.accepted = False
+
+    def accept(self,user_id,group_id):
+        user = User.query.get(user_id)
+        group = Group.query.get(group_id)
+        group.join(user)
+        self.reject()
+
+    def reject(self):
+        GroupRequest.query.filter_by(id=self.id).delete()
+        db.session.commit()
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -218,13 +247,13 @@ class Group(db.Model):
         return '<Group {0}>'.format(self.name)
 
     def is_member(self,user):
-        if user in members:
+        if user in self.members:
             return True
         else:
             return False
 
     def is_admin(self,user):
-        if user in admins:
+        if user in self.admins:
             return True
         else:
             return False
@@ -236,7 +265,6 @@ class Group(db.Model):
     def leave(self,user):
         user = User.query.get(user)
         self.members.remove(user)
-        #user.groups.remove()
         db.session.commit()
 
     def make_admin(self,user):
@@ -246,6 +274,10 @@ class Group(db.Model):
     def add_post(self,post):
         self.group_posts.append(post)
         db.session.commit()
+
+
+
+
 
 
 

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{%block content%}
+<div class="container">
+    <div class="row">
+        <div class="name">
+            <h1>Admin Panel</h1>
+            <div class="btn-group">
+            	<a href="/groups/{{group.id}}/admin/requests/" class="btn btn-success btn-sm">Join Requests</a>
+            	{%if group.private%}
+	            	<a href="/groups/{{group.id}}/admin/change_privacy/" class="btn btn-warning btn-sm">Make Public</a>
+            	{%else%}
+   	            	<a href="/groups/{{group.id}}/admin/change_privacy/" class="btn btn-warning btn-sm">Make Private</a>
+   	            {%endif%}
+            </div>
+            <br>
+        </div>
+    </div>
+{%endblock%}

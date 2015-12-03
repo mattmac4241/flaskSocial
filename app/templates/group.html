@@ -10,7 +10,32 @@
         <div>
         	{%if member%}
           <div class="btn-group">
-            <a href="/groups/{{group.id}}/create_group_post/" class="btn btn-primary btn-sm">Create Post</a>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Create Post</button>
+              <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="exampleModalLabel">New Post</h4>
+                    </div>
+                    <div class="modal-body">
+                      <form method="POST" action="/groups/{{group.id}}/create_group_post/">
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Title:</label> 
+                            <input type="text" name="title" class="form-control" id="recipient-name">   
+                            <label for="message-text" class="control-label">Post:</label>
+                          <textarea name= "content" class="form-control" id="message-text"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <input type="submit" class="btn btn-primary" value="Post"/>
+                    </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
             <!-- Split button -->
             <div class="btn-group">
               <button type="button" class="btn btn-success btn-sm">Sort By</button>
@@ -27,8 +52,34 @@
             </div>
             <a href="/groups/{{group.id}}/members/" class="btn btn-warning btn-sm">Members</a>
             <a href="/groups/{{group.id}}/leave/" class="btn btn-danger btn-sm">Leave</a>
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal2" data-whatever="@mdo">Group Description</button>
+            <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title2" id="exampleModalLabel2">About this group</h4>
+                  </div>
+                  <div class="modal-body"2>
+                    <p>{{group.description}}</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </form>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+              {%if admin%}
+              <a href="/groups/{{group.id}}/admin/" class="btn btn-warning btn-sm">Admin Pannel</a>
+            {%endif%}
+            </div>
+
             {%else%}
+            <p>{{group.description}}</p>
             <a href="/groups/{{group.id}}/join/" class="btn btn-primary btn-sm">Join Group</a>
+
             {%endif%}
           </div>
     </div>
@@ -46,6 +97,10 @@
 	      		{%endif%}
       		{%endif%}
        		 <a href="/post/{{post.id}}">{{post.title}}</a> 
+           {%if admin%}
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           <a href="/group/{{group.id}}/post/{{post.id}}/delete/" class="btn btn-danger btn-sm">Remove Post</a>
+           {%endif%}
        		<hr>
        	{%endfor%}
        </div>

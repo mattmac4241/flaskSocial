@@ -2,18 +2,34 @@
 
 {%block content%}
 <div class="container">
-	<h1>Friend Requests</h1>
+	{%if is_group%}
+		<h1>Member Requests</h1>
+	{%else%}
+		<h1>Friend Requests</h1>
+	{%endif%}
 	<hr>
     <div class="row">
         <div class="name">
         	{%if len > 0%}
-	        	{%for req,user in users_from%}
-	        	<a href="/user/{{user.id}}/">{{user.user_name}}</a>
-	        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	        	<a href="/user/requests/{{req.id}}/accept/" class="btn btn-success btn-sm">Accept Request  <i class="glyphicon glyphicon-plus"></i></a>
-	        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="/user/requests/{{req.id}}/reject/" class="btn btn-danger btn-sm">Reject Request  <i class="glyphicon glyphicon-remove"></i></a>
-	            {%endfor%}
+    			{%if is_group%}
+    				{%for request,user in users_from%}
+	    				<a href="/user/{{user.id}}/">{{user.user_name}}</a>
+		        		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		        		<a href="/groups/{{group.id}}/admin/requests/{{request.id}}/accept/" class="btn btn-success btn-sm">Accept Request</a>
+		        		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		        		<a href="/groups/{{group.id}}/admin/requests/{{request.id}}/reject/" class="btn btn-danger btn-sm">Reject Request</a>
+		        		<hr>
+	        		{%endfor%}
+    			{%else%}
+		        	{%for req,user in users_from%}
+			        	<a href="/user/{{user.id}}/">{{user.user_name}}</a>
+			        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			        	<a href="/user/requests/{{req.id}}/accept/" class="btn btn-success btn-sm">Accept Request</a>
+			        	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="/user/requests/{{req.id}}/reject/" class="btn btn-danger btn-sm">Reject Request</a>
+						<hr>
+		            {%endfor%}
+	            {%endif%}
 	        {%else%}
 	        	<p>No Requests at this time</p>
 	        {%endif%}

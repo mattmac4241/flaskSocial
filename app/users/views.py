@@ -16,6 +16,13 @@ def are_friends(user1,user2):
     else:
         return False
 
+@users_blueprint.route('/')
+def home():
+    if 'logged_in' in session:
+        return redirect(url_for('users.my_profile'))
+    else:
+        return redirect(url_for('users.login')) 
+
 #usre register
 @users_blueprint.route('/register/',methods=['GET','POST'])
 def register():

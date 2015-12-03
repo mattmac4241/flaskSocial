@@ -1,10 +1,10 @@
 from functools import wraps
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
-from app.models import User,Group,Post
-from app import db
+from app.models import User,Group,Post,GroupRequest
+from app import db,app
 from .forms import GroupForm
-from app.helpers import login_required,get_object_or_404
+from app.helpers import login_required,get_object_or_404,get_sort_posts
 
 
 groups_blueprint = Blueprint('groups',__name__)
@@ -18,52 +18,19 @@ def groups():
 
 #sort comments by most liked by default
 @groups_blueprint.route('/groups/<int:group_id>/')
+@groups_blueprint.route('/groups/<int:group_id>/new/')
+@groups_blueprint.route('/groups/<int:group_id>/least/')
+@groups_blueprint.route('/groups/<int:group_id>/oldest/')
 @login_required
 def group_page(group_id):
     group = get_object_or_404(Group,Group.id == group_id)
-    posts = [(x,len(x.likes)) for x in group.group_posts]
-    posts.sort(key=lambda x: x[1])
-    posts.reverse()
+    print group.private
     user = User.query.get(session['user_id'])
+    url = request.url_rule
+    admin = user in group.admins
+    posts = get_sort_posts(group,str(url))
     member = user in group.members #check if user is member and grant certain privaliges if so
-    return render_template('group.html',group=group,user=user,member=member,posts=posts)
-
-#sort comments by newest
-@groups_blueprint.route('/groups/<int:group_id>/new/')
-@login_required
-def group_page_new(group_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    posts = [(x,x.time_posted) for x in group.group_posts]
-    posts.sort(key=lambda x: x[1])
-    posts.reverse()
-    user = User.query.get(session['user_id'])
-    member = user in group.members #check if user is member and grant certain privaliges if so
-    return render_template('group.html',group=group,user=user,member=member,posts=posts)
-
-
-#sort comments by least liked
-@groups_blueprint.route('/groups/<int:group_id>/least/')
-@login_required
-def group_page_least(group_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    posts = [(x,len(x.likes)) for x in group.group_posts]
-    posts.sort(key=lambda x: x[1])
-    user = User.query.get(session['user_id'])
-    member = user in group.members #check if user is member and grant certain privaliges if so
-    return render_template('group.html',group=group,user=user,member=member,posts=posts)
-
-#sort comments by newest
-@groups_blueprint.route('/groups/<int:group_id>/oldest/')
-@login_required
-def group_page_old(group_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    posts = [(x,x.time_posted) for x in group.group_posts]
-    posts.sort(key=lambda x: x[1])
-    user = User.query.get(session['user_id'])
-    member = user in group.members #check if user is member and grant certain privaliges if so
-    return render_template('group.html',group=group,user=user,member=member,posts=posts)
-
-
+    return render_template('group.html',group=group,user=user,member=member,posts=posts,admin=admin)
 
 @groups_blueprint.route('/groups/create/',methods=['GET','POST'])
 @login_required
@@ -73,7 +40,7 @@ def create_group():
     if request.method == 'POST':
         user = User.query.get(session['user_id'])
         is_private = False
-        if form.private.data == 'private':
+        if form.private.data == 'pr':
             is_private = True
         new_group = Group(
             name = form.name.data,
@@ -106,18 +73,20 @@ def create_post(group_id):
                 poster_name = user.user_name,
                 self_post = False
                 )
-            try:
-                db.session.add(post)
-                db.session.commit()
-                group.add_post(post)
-            except IntegrityError:
-                flash("Something went wrong")
+            if post.title.strip() == '' or post.content.strip() == '':
+                flash("You cannot post an empty post")
+            else:
+                try:
+                    db.session.add(post)
+                    db.session.commit()
+                    group.add_post(post)
+                except IntegrityError:
+                    flash("Something went wrong")
             return redirect(url_for('groups.group_page',group_id=group_id))
     else:
         flash('NOT A MEMBER,JOIN THE GROUP!')
         return redirect(url_for('groups.group_page',group_id=group_id))
     return render_template('create_post.html',user=False,group=group)
-
 
 @groups_blueprint.route('/groups/<int:group_id>/join/')
 @login_required
@@ -125,7 +94,21 @@ def join_group(group_id):
     user = User.query.get(session['user_id'])
     group = get_object_or_404(Group,Group.id == group_id)
     if user not in group.members:
-        group.join(user)
+        check = GroupRequest.query.filter_by(user = session['user_id'],group= group.id).first() #get friend request
+        if group.private:
+            if check == None:
+                request = GroupRequest(
+                    user = user.id,
+                    group = group.id,
+                    )
+                db.session.add(request)
+                db.session.commit()
+                flash('Group is private, request to join sent')
+                return redirect(url_for('users.my_profile'))
+            else:
+                flash('Request already sent')
+        else:
+            group.join(user)
     else:
         flash('You already joined this group')
     return redirect(url_for('groups.group_page',group_id=group_id))
@@ -137,6 +120,8 @@ def leave_group(group_id):
     group = get_object_or_404(Group,Group.id == group_id)
     if user not in group.members:
         flash('You can\'t leave a group you are not apart of')
+    elif group.is_admin(user):
+        flash('You can\'t leave a group you are an admin of')
     else:
         group.leave(session['user_id'])
     return redirect(url_for('groups.groups'))
@@ -144,20 +129,25 @@ def leave_group(group_id):
 @groups_blueprint.route('/groups/<int:group_id>/members/')
 @login_required
 def members(group_id):
+    user = User.query.get(session['user_id'])
     group = get_object_or_404(Group,Group.id == group_id)
+    admins = group.admins
+    is_admin = group.is_admin(user)
     members = group.members
-    return render_template('members.html',members=members)
+    return render_template('members.html',members=members,admins=admins,is_admin=is_admin,group=group)
 
 
-@groups_blueprint.route('/groups/<int:group_id>/members/<int:member_id>/remove/')
+@groups_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/remove/')
 @login_required
-def remove_member(group_id,member_id):
+def remove_member(group_id,user_id):
     group = get_object_or_404(Group,Group.id == group_id)
     admin = User.query.get(session['user_id'])
     if group.is_admin(admin):
         user = get_object_or_404(User,User.id == user_id)
         if not group.is_admin(user):
-            group.leave(user)
+            group.members.remove(user)
+            db.session.commit()
+            #group.leave(user)
             flash('Member removed')
         else:
             flash('Admins can remove admins')
@@ -168,7 +158,7 @@ def remove_member(group_id,member_id):
 
 
 #make a user an admin
-@groups_blueprint.route('/groups/<int:group_id>/members/<int:member_id>/make_admin/')
+@groups_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/make_admin/')
 @login_required
 def make_admin(group_id,user_id):
     admin = User.query.get(session['user_id'])
@@ -198,6 +188,60 @@ def like_post(post_id,group_id):
     elif user in post.likes:
         post.unlike(user)
     return redirect(url_for('groups.group_page',group_id=group_id))
+
+#Delete a post
+@groups_blueprint.route('/group/<int:group_id>/post/<int:post_id>/delete/')
+@login_required
+def delete_post(group_id,post_id):
+    post = get_object_or_404(Post,Post.id==post_id)
+    if post.poster == session['user_id']:       
+        group = get_object_or_404(Group,Group.id==group_id)
+        group.group_posts.remove(post)
+        db.session.commit()
+        post.delete()
+        flash('POST deleted')
+        return redirect(url_for('groups.group_page',group_id=group_id))
+    else:
+        flash("You do not have permission for that")
+        return redirect(url_for('posts.post',post_id = post_id))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

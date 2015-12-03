@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from .forms import PostForm
 from app.models import Post,User,Comment
 from app import db,bcrypt
-from app.helpers import login_required,get_object_or_404
+from app.helpers import login_required,get_object_or_404,like_post
 
 posts_blueprint = Blueprint('posts',__name__)
 
@@ -32,18 +32,21 @@ def create_post():
 		return redirect(url_for('users.my_profile'))
 	return render_template('create_post.html',user=True,self=False)
 
+
+
+
 #Display a post
 @posts_blueprint.route('/post/<int:post_id>/')
 @login_required
 def post(post_id):
 	post = get_object_or_404(Post,Post.id==post_id)
-	print post.time_posted
+	user = User.query.get(post.poster)
 	comments = Comment.query.filter_by(parent=post.id)
 	com = []
 	for c in comments:
 		user = User.query.get(c.poster)
 		com.append((c,user))
-	return render_template('post.html',post=post,com=com)
+	return render_template('post.html',post=post,com=com,user=user)
 
 #Delete a post
 @posts_blueprint.route('/post/<int:post_id>/delete/')
@@ -51,8 +54,7 @@ def post(post_id):
 def delete_post(post_id):
 	post = get_object_or_404(Post,Post.id==post_id)
 	if post.poster == session['user_id']:		
-		Post.query.filter_by(id=post_id).delete()
-		db.session.commit()
+		post.delete()
 		flash('POST deleted')
 		return redirect(url_for('users.my_profile'))
 	else:

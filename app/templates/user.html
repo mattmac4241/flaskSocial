@@ -8,8 +8,31 @@
         </div>
         <div>
         	{%if user_profile%}
-           	 <a href="{{url_for('posts.create_post')}}" class="btn btn-info btn-sm">Add Post</a>
-           	{%endif%}
+			<div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Create Post</button>
+              <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="exampleModalLabel">New Post</h4>
+                    </div>
+                    <div class="modal-body">
+                      <form method="POST" action="/create_post/">
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Title:</label> 
+                            <input type="text" name="title" class="form-control" id="recipient-name">   
+                            <label for="message-text" class="control-label">Post:</label>
+                          <textarea name= "content" class="form-control" id="message-text"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <input type="submit" class="btn btn-primary" value="Post"/>
+                    </form>
+                    </div>
+                  </div>
+                </div>           	{%endif%}
     </div>
 </div>
 {%if not user_profile %}

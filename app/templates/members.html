@@ -7,7 +7,14 @@
     <div class="row">
         <div class="name">
         	{%for user in members%}
-        	<a href='/user/{{user.id}}/'>{{user.user_name}}</a>
+            <a href='/user/{{user.id}}/'>{{user.user_name}}</a>
+            {% if is_admin %}
+                {%if user not in admins%}
+                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/groups/{{group.id}}/members/{{user.id}}/remove/" class="btn btn-danger btn-sm">Remove</a>
+                    <a href="/groups/{{group.id}}/members/{{user.id}}/make_admin/" class="btn btn-warning btn-sm">Make Admin</a> 
+                {%endif%}
+            {%endif%}
         	<hr>
             {%endfor%}
         </div>
