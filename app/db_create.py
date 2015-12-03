@@ -1,4 +1,4 @@
-from project import db
+from app import db
 from sqlalchemy.orm.mapper import configure_mappers
 
 # create the database and the db table
