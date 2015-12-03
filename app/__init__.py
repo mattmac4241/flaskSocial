@@ -9,8 +9,9 @@ from sqlalchemy_searchable import make_searchable
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
+
 migrate = Migrate(app, db)
 
 bcrypt = Bcrypt(app)
