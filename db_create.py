@@ -1,4 +1,3 @@
-
 from project import db
 from sqlalchemy.orm.mapper import configure_mappers
 
