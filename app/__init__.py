@@ -5,7 +5,6 @@ from flask.ext.bcrypt import Bcrypt
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from sqlalchemy_searchable import make_searchable
-import
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
