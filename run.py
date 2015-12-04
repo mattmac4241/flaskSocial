@@ -5,4 +5,4 @@ from app import manager
 
 
 #manager.run()
-app.run(debug=False)
+app.run(debug=True)
