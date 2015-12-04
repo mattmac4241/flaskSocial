@@ -25,7 +25,7 @@ def upgrade():
     vectorizer.clear()
 
     conn = op.get_bind()
-    op.add_column('groups', sa.Column('name', HSTORE))
+    op.add_column('groups', sa.Column('name_translations', HSTORE))
 
     metadata = sa.MetaData(bind=conn)
     groups = sa.Table('description', metadata, autoload=True)
@@ -39,7 +39,7 @@ def upgrade():
         conn,
         'groups',
         'search_vector',
-        ['name', 'description'],
+        ['name_translations', 'description'],
         metadata=metadata
     )
     ### end Alembic commands ###
