@@ -23,7 +23,7 @@ def upgrade():
     op.add_column('groups', sa.Column('name', HSTORE))
 
     metadata = sa.MetaData(bind=conn)
-    groups = sa.Table('description', metadata, autoload=True)
+    groups = sa.Table('groups', metadata, autoload=True)
 
     @vectorizer(groups.c.name)
     def hstore_vectorizer(column):
