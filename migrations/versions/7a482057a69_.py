@@ -25,7 +25,7 @@ def upgrade():
     vectorizer.clear()
 
     conn = op.get_bind()
-    op.add_column('groups', sa.Column('name_translations', HSTORE))
+    op.add_column('groups', sa.Column('group_name', HSTORE))
 
     metadata = sa.MetaData(bind=conn)
     groups = sa.Table('groups', metadata, autoload=True)
@@ -34,12 +34,12 @@ def upgrade():
     def hstore_vectorizer(column):
         return sa.cast(sa.func.avals(column), sa.Text)
 
-    op.add_column('groups', sa.Column('description', sa.Text))
+    op.add_column('groups', sa.Column('group_description', sa.Text))
     sync_trigger(
         conn,
         'groups',
         'search_vector',
-        ['name_translations', 'description'],
+        ['group_name', 'group_description'],
         metadata=metadata
     )
     ### end Alembic commands ###
