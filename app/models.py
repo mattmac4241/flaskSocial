@@ -235,7 +235,7 @@ class Group(db.Model):
     admins = db.relationship('User',secondary=admins,backref=db.backref('admin_users', lazy='dynamic'))
     description = db.Column(db.String)
     private = db.Column(db.Boolean)
-    search_vector = db.Column(TSVectorType('name', 'description'))
+    search_vector = db.Column(TSVectorType('group_name', 'group_description'))
 
     def __init__(self,name,description,admin,private):
         self.name = name

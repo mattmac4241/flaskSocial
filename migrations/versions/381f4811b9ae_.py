@@ -20,7 +20,10 @@ def upgrade():
     vectorizer.clear()
 
     conn = op.get_bind()
+<<<<<<< HEAD
     op.add_column('groups', sa.Column('name', HSTORE))
+=======
+>>>>>>> 78705b03bbdd89b91533bb0b49ada128114dd86d
 
     metadata = sa.MetaData(bind=conn)
     groups = sa.Table('groups', metadata, autoload=True)
@@ -29,12 +32,15 @@ def upgrade():
     def hstore_vectorizer(column):
         return sa.cast(sa.func.avals(column), sa.Text)
 
-    op.add_column('groups', sa.Column('description', sa.Text))
+    op.add_column('groups', sa.Column('group_description', sa.Text))
     sync_trigger(
         conn,
         'groups',
         'search_vector',
+<<<<<<< HEAD
         ['name', 'description'],
+=======
+>>>>>>> 78705b03bbdd89b91533bb0b49ada128114dd86d
         metadata=metadata
     )
 
