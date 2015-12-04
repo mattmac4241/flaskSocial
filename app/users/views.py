@@ -97,17 +97,18 @@ def login():
     if request.method == 'POST':
         if form.validate_on_submit():
             user = User.query.filter_by(email=request.form['email']).first()
-            if user.confirmed == True :
-                if user is not None and bcrypt.check_password_hash(user.password, request.form['password']):
-                    session['logged_in'] = True
-                    session['user_id'] = user.id
-                    flash('Welcome!')
-                    flash("Succesfful Logged in")
-                    return redirect(url_for('users.my_profile'))
+            if user is not None and bcrypt.check_password_hash(user.password, request.form['password']):
+                if user.confirmed == True:
+                        session['logged_in'] = True
+                        session['user_id'] = user.id
+                        flash('Welcome!')
+                        flash("Succesfful Logged in")
+                        return redirect(url_for('users.my_profile'))
                 else:
-                    error = 'Invlaid username or password'
+                    flash('Please confirm your account, an email was sent')
             else:
-                flash('Please confirm your account, an email was sent')
+                flash('Invlaid username or password')
+                
     return render_template('login.html',form=form,error=error)
 
 @users_blueprint.route('/logout/',methods=['GET','POST'])
@@ -232,3 +233,6 @@ def my_profile():
     posts.sort(key=lambda x: x[1])
     posts.reverse()
     return render_template('user.html',user=user,user_profile = True,posts=posts)
+
+
+
