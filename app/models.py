@@ -75,12 +75,14 @@ class User(db.Model):
                                backref=db.backref('user_friends', lazy='dynamic'), 
                                lazy='dynamic')
     groups = db.relationship('Group',secondary=members,backref=db.backref('user_groups', lazy='dynamic'))
+    confirmed = db.Column(db.Boolean,default=True)
 
 
-    def __init__(self,user_name,email,password):
+    def __init__(self,user_name,email,password,confirmed):
         self.user_name = user_name
         self.email = email
         self.password = password
+        self.confirmed = confirmed
 
 
     def delete_friend(self,user):

@@ -1,0 +1,13 @@
+{%extends "base.html"%}
+
+{%block content%}
+<h1>Resend Confirmation</h1>
+<hr>
+<div class="container">
+	<form method="POST" action="/resend/" >	  
+  	    <input type="text" class="form-control" id="usr" placeholder="Enter email here" name="email">
+  	  <button class="btn btn-sm btn-success" type="submit">Re-Send</button>
+  </form>
+</div>
+
+{%endblock%}

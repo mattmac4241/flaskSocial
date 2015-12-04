@@ -1,5 +1,7 @@
 import datetime
 from flask import Flask 
+from flask_mail import Mail
+
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.script import Manager
@@ -9,6 +11,7 @@ import os
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
+mail = Mail(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 

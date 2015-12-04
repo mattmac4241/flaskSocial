@@ -4,6 +4,9 @@ from .forms import RegisterForm,LoginForm
 from app.models import User,FriendRequest,Post
 from app import db,bcrypt
 from app.helpers import login_required,get_object_or_404
+from app.token import generate_confirmation_token, confirm_token
+from app.email import send_email
+
 
 users_blueprint = Blueprint('users',__name__)
 
@@ -26,6 +29,38 @@ def home():
     else:
         return redirect(url_for('users.login')) 
 
+@users_blueprint.route('/confirm/<token>')
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+        flash('Request new link')
+        return redirect(url_for(users.resend))
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.confirmed:
+        flash('Account already confirmed. Please login.', 'success')
+    else:
+        user.confirmed = True
+        db.session.add(user)
+        db.session.commit()
+        flash('You have confirmed your account. Thanks!', 'success')
+    return redirect(url_for('users.login'))
+
+#resend confimation email if user
+@users_blueprint.route('/resend/',methods=['GET','POST'])
+def resend_confirmation():
+    if request.method == 'POST':
+        user = get_object_or_404(User,User.email==request.form['email'])
+        token = generate_confirmation_token(user.email)
+        confirm_url = url_for('users.confirm_email', token=token, _external=True)
+        html = render_template('activate.html', confirm_url=confirm_url)
+        subject = "Please confirm your email"
+        send_email(user.email, subject, html)
+        flash('A new confirmation email has been sent.', 'success')
+        return redirect(url_for('users.login'))
+    return render_template('resend.html')
+
 #user register
 @users_blueprint.route('/register/',methods=['GET','POST'])
 def register():
@@ -35,12 +70,20 @@ def register():
         new_user = User(
             user_name = form.user_name.data,
             email = form.email.data,
-            password = bcrypt.generate_password_hash(form.password.data)
+            password = bcrypt.generate_password_hash(form.password.data),
+            confirmed = False
         )
         try:
             db.session.add(new_user)
             db.session.commit()
-            flash('Thanks for registering!')
+            token = generate_confirmation_token(new_user.email)
+            confirm_url = url_for('users.confirm_email', token=token, _external=True)
+            html = render_template('activate.html', confirm_url=confirm_url)
+            subject = "Please confirm your email"
+            send_email(new_user.email, subject, html)
+            flash('A confirmation email has been sent via email.')
+            return redirect(url_for('users.login'))
+
         except IntegrityError:
             error = "That username and/or email alread exists."
             return render_template('register.html',form=form,error=error)
@@ -54,14 +97,17 @@ def login():
     if request.method == 'POST':
         if form.validate_on_submit():
             user = User.query.filter_by(email=request.form['email']).first()
-            if user is not None and bcrypt.check_password_hash(user.password, request.form['password']):
-                session['logged_in'] = True
-                session['user_id'] = user.id
-                flash('Welcome!')
-                flash("Succesfful Logged in")
-                return redirect(url_for('users.my_profile'))
+            if user.confirmed == True :
+                if user is not None and bcrypt.check_password_hash(user.password, request.form['password']):
+                    session['logged_in'] = True
+                    session['user_id'] = user.id
+                    flash('Welcome!')
+                    flash("Succesfful Logged in")
+                    return redirect(url_for('users.my_profile'))
+                else:
+                    error = 'Invlaid username or password'
             else:
-                error = 'Invlaid username or password'
+                flash('Please confirm your account, an email was sent')
     return render_template('login.html',form=form,error=error)
 
 @users_blueprint.route('/logout/',methods=['GET','POST'])
