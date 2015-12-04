@@ -1,6 +1,6 @@
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
-from .forms import RegisterForm,LoginForm
+from .forms import RegisterForm,LoginForm,ResetPasswordForm
 from app.models import User,FriendRequest,Post
 from app import db,bcrypt
 from app.helpers import login_required,get_object_or_404
@@ -60,6 +60,22 @@ def resend_confirmation():
         flash('A new confirmation email has been sent.', 'success')
         return redirect(url_for('users.login'))
     return render_template('resend.html')
+
+@users_blueprint.route('/reset_password/',methods=['GET','POST'])
+@login_required
+def reset_password():
+    form = ResetPasswordForm(request.form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = User.query.get(session['user_id'])
+            if bcrypt.check_password_hash(user.password, request.form['password']):
+                user.password = bcrypt.generate_password_hash(form.new_password.data)
+                db.session.commit()
+                flash('Password reset')
+                return redirect(url_for('users.my_profile'))
+            flash('Password does not match')
+    return render_template('reset_password.html',form=form)
+
 
 #user register
 @users_blueprint.route('/register/',methods=['GET','POST'])

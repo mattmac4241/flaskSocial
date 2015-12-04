@@ -30,3 +30,21 @@ class LoginForm(Form):
         'Password',
         validators=[DataRequired()]
     )
+
+class ResetPasswordForm(Form):
+    password = PasswordField(
+        'Old Password',
+        validators=[DataRequired(), Length(min=6, max=40)]
+    )
+    new_password = PasswordField(
+        'Password',
+        validators=[DataRequired(), Length(min=6, max=40)]
+        )
+    confirm = PasswordField(
+        'Repeat New Password',
+        validators=[DataRequired(), EqualTo('new_password')]
+    )
+
+    
+
+    
