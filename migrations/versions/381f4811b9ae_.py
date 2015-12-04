@@ -20,7 +20,7 @@ def upgrade():
     vectorizer.clear()
 
     conn = op.get_bind()
-    op.add_column('groups', sa.Column('name_translations', HSTORE))
+    op.add_column('groups', sa.Column('name', HSTORE))
 
     metadata = sa.MetaData(bind=conn)
     groups = sa.Table('groups', metadata, autoload=True)
@@ -34,7 +34,7 @@ def upgrade():
         conn,
         'groups',
         'search_vector',
-        ['name_translations', 'description'],
+        ['name', 'description'],
         metadata=metadata
     )
 
