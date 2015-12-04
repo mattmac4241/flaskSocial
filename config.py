@@ -15,8 +15,8 @@ SECRET_KEY = '\xff\xdcUf\xdd\x9a\x9c\x16\x86\xaf\t\x8c\xc0\xce\x1b\xc4\x90*N\t\x
 DATABASE_PATH = os.path.join(basedir, DATABASE)
 
 
-urlparse.uses_netloc.append("postgres")
-url = urlparse.urlparse(os.environ["DATABASE_URL"])
+'''urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])'''
 
 # the database uri
 SQLALCHEMY_DATABASE_URI = "postgresql://matt:Password@localhost/social"
