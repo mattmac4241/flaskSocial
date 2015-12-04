@@ -15,7 +15,10 @@ def are_friends(user1,user2):
         return True
     else:
         return False
-
+'''the home page, if user is not logged in
+take them to login page
+else take them to their user page
+'''
 @users_blueprint.route('/')
 def home():
     if 'logged_in' in session:
@@ -23,7 +26,7 @@ def home():
     else:
         return redirect(url_for('users.login')) 
 
-#usre register
+#user register
 @users_blueprint.route('/register/',methods=['GET','POST'])
 def register():
     error = None
@@ -43,6 +46,7 @@ def register():
             return render_template('register.html',form=form,error=error)
     return render_template('register.html',form=form)
 
+#user login
 @users_blueprint.route('/login/',methods=['GET','POST'])
 def login():
     error = None
@@ -67,6 +71,8 @@ def logout():
     flash('Goodbye!')
     return redirect(url_for('users.login'))
 
+#the posts are filtered by newest post
+#this is the user page 
 @users_blueprint.route('/user/<int:user_id>/')
 @login_required
 def profile(user_id):
@@ -77,7 +83,7 @@ def profile(user_id):
     posts = [(x,x.time_posted) for x in posts]
     posts.sort(key=lambda x: x[1])
     posts.reverse()
-    friends = u in user.friends
+    friends = u in user.friends #check if the user is friends with the user
     if request.method == 'POST':
         print request.form 
         message = Message(
@@ -89,7 +95,7 @@ def profile(user_id):
         db.session.commit()
     return render_template('user.html',user=user,user_profile=user_profile,friends=friends,posts=posts)
 
-
+#add a new friend
 @users_blueprint.route('/user/<int:user_id>/add_friend/',methods=['GET','POST'])
 @login_required
 def add_friend(user_id):
@@ -111,6 +117,7 @@ def add_friend(user_id):
             flash('Request already sent')
         return redirect(url_for('users.profile',user_id = user_id))
 
+#the user's requests
 @users_blueprint.route('/user/requests/')
 @login_required
 def requests():
@@ -123,6 +130,7 @@ def requests():
     l = len(users_from)
     return render_template('requests.html',users_from=users_from,len=l)
 
+#accept a friend request
 @users_blueprint.route('/user/requests/<int:request_id>/accept/')
 @login_required
 def accept(request_id):
@@ -135,7 +143,7 @@ def accept(request_id):
         flash('Not allowed')
         return redirect(url_for('users.requests'))
 
-
+#reject a friend request
 @users_blueprint.route('/user/requests/<int:request_id>/reject/')
 @login_required
 def reject(request_id):
@@ -148,12 +156,14 @@ def reject(request_id):
         flash('Not allowed')
         return redirect(url_for('users.requests'))
 
+#the user's friends
 @users_blueprint.route('/user/friends/')
 @login_required
 def friends():
     user = User.query.get(session['user_id'])
     return render_template('friends.html',user=user)
 
+#delete a user friend
 @users_blueprint.route('/user/friends/<int:user_id>/delete/')
 @login_required
 def delete_friend(user_id):
@@ -165,7 +175,8 @@ def delete_friend(user_id):
         return redirect(url_for('users.friends'))
     else:
         return redirect(url_for('users.friends'))
-
+        
+#the users own profile
 @users_blueprint.route('/user/')
 @login_required
 def my_profile():

@@ -9,6 +9,7 @@ from app.helpers import login_required,get_object_or_404,get_sort_posts
 
 groups_blueprint = Blueprint('groups',__name__)
 
+#all of the user's groups
 @groups_blueprint.route('/groups/')
 @login_required
 def groups():
@@ -16,7 +17,10 @@ def groups():
     groups = user.groups
     return render_template('groups.html',groups=groups,user=user,search=False)
 
-#sort comments by most liked by default
+'''
+Sort comments by either most liked,which is default,
+else sort by new,least,or oldest
+'''
 @groups_blueprint.route('/groups/<int:group_id>/')
 @groups_blueprint.route('/groups/<int:group_id>/new/')
 @groups_blueprint.route('/groups/<int:group_id>/least/')
@@ -32,6 +36,7 @@ def group_page(group_id):
     member = user in group.members #check if user is member and grant certain privaliges if so
     return render_template('group.html',group=group,user=user,member=member,posts=posts,admin=admin)
 
+#create a group, either a public or private group
 @groups_blueprint.route('/groups/create/',methods=['GET','POST'])
 @login_required
 def create_group():
@@ -88,15 +93,20 @@ def create_post(group_id):
         return redirect(url_for('groups.group_page',group_id=group_id))
     return render_template('create_post.html',user=False,group=group)
 
+'''Join group if group is private
+a request is sent to the group an admin of the group
+then can accept or reject that request, and then the member is added
+else user just joins the group
+'''
 @groups_blueprint.route('/groups/<int:group_id>/join/')
 @login_required
 def join_group(group_id):
+    group = get_object_or_404(Group,Group.id == group_id) #check if group exists
     user = User.query.get(session['user_id'])
-    group = get_object_or_404(Group,Group.id == group_id)
     if user not in group.members:
         check = GroupRequest.query.filter_by(user = session['user_id'],group= group.id).first() #get friend request
         if group.private:
-            if check == None:
+            if check == None: #if no request present
                 request = GroupRequest(
                     user = user.id,
                     group = group.id,
@@ -113,6 +123,7 @@ def join_group(group_id):
         flash('You already joined this group')
     return redirect(url_for('groups.group_page',group_id=group_id))
 
+#leave group, can't leave if you are an admin
 @groups_blueprint.route('/groups/<int:group_id>/leave/')
 @login_required
 def leave_group(group_id):
@@ -126,58 +137,18 @@ def leave_group(group_id):
         group.leave(session['user_id'])
     return redirect(url_for('groups.groups'))
 
+#get the members of the page
 @groups_blueprint.route('/groups/<int:group_id>/members/')
 @login_required
 def members(group_id):
     user = User.query.get(session['user_id'])
     group = get_object_or_404(Group,Group.id == group_id)
-    admins = group.admins
-    is_admin = group.is_admin(user)
+    admins = group.admins 
+    is_admin = group.is_admin(user) #check if the user is an admin
     members = group.members
     return render_template('members.html',members=members,admins=admins,is_admin=is_admin,group=group)
 
-
-@groups_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/remove/')
-@login_required
-def remove_member(group_id,user_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    admin = User.query.get(session['user_id'])
-    if group.is_admin(admin):
-        user = get_object_or_404(User,User.id == user_id)
-        if not group.is_admin(user):
-            group.members.remove(user)
-            db.session.commit()
-            #group.leave(user)
-            flash('Member removed')
-        else:
-            flash('Admins can remove admins')
-        return redirect(url_for('groups.members',group_id=group_id))
-    else:
-        flash('You do not have permission to remove someone from a group')
-        return redirect(url_for('groups.group_page',group_id=group_id))
-
-
-#make a user an admin
-@groups_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/make_admin/')
-@login_required
-def make_admin(group_id,user_id):
-    admin = User.query.get(session['user_id'])
-    group = get_object_or_404(Group,Group.id == group_id)
-    if group.is_admin(user): #check if current user is an admin
-        user = get_object_or_404(User,User.id == user_id)
-        group.make_admin(user)
-        redirect(url_for('groups.members',group_id=group_id))
-    else:
-        flash('You do not have permission for that')
-        redirect(url_for('groups.group_page',group_id=group_id))
-
-@groups_blueprint.route('/groups/<int:group_id>/admins/')
-@login_required
-def get_admins(group_id):
-    group = get_object_or_404(Group,Group.id == group_id)
-    admins = group.admins
-    return render_template('admins.html',admins=admins)
-
+#like/unlike a post depending on if user already liked the post
 @groups_blueprint.route('/groups/<int:group_id>/post/<int:post_id>/like/')
 @login_required
 def like_post(post_id,group_id):
@@ -185,63 +156,6 @@ def like_post(post_id,group_id):
     user = User.query.get(session['user_id'])
     if user not in post.likes:
         post.like(user)
-    elif user in post.likes:
+    elif user in post.likes: 
         post.unlike(user)
     return redirect(url_for('groups.group_page',group_id=group_id))
-
-#Delete a post
-@groups_blueprint.route('/group/<int:group_id>/post/<int:post_id>/delete/')
-@login_required
-def delete_post(group_id,post_id):
-    post = get_object_or_404(Post,Post.id==post_id)
-    if post.poster == session['user_id']:       
-        group = get_object_or_404(Group,Group.id==group_id)
-        group.group_posts.remove(post)
-        db.session.commit()
-        post.delete()
-        flash('POST deleted')
-        return redirect(url_for('groups.group_page',group_id=group_id))
-    else:
-        flash("You do not have permission for that")
-        return redirect(url_for('posts.post',post_id = post_id))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

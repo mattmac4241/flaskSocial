@@ -6,6 +6,7 @@ from app.helpers import login_required,get_object_or_404
 
 comments_blueprint = Blueprint('comments',__name__)
 
+#create a comment
 @comments_blueprint.route('/posts/<int:post_id>/create_comment/',methods=['GET','POST'])
 @login_required
 def create_comment(post_id):
@@ -22,6 +23,7 @@ def create_comment(post_id):
 		flash('Comment made')
 		return redirect(url_for('posts.post',post_id=post_id))
 
+#delete a comment
 @comments_blueprint.route('/posts/<int:post_id>/comment/<int:comment_id>/delete/')
 @login_required
 def delete_comment(post_id,comment_id):

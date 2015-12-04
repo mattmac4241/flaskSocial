@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from .forms import PostForm
 from app.models import Post,User,Comment
 from app import db,bcrypt
-from app.helpers import login_required,get_object_or_404,like_post
+from app.helpers import login_required,get_object_or_404
 
 posts_blueprint = Blueprint('posts',__name__)
 

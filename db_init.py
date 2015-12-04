@@ -4,7 +4,7 @@ from app import db
 from app.config import DATABASE_PATH
 from sqlalchemy.orm.mapper import configure_mappers
 
-
+#NEED if search breaks
 with sqlite3.connect(DATABASE_PATH) as connection:
     db.session.remove()
     db.drop_all()

@@ -11,10 +11,9 @@ search_blueprint = Blueprint('search',__name__)
 @login_required
 def search_groups():
     if request.method == 'POST':
-        term = request.form['search']
+        term = request.form['search'] #get the term from the search and perform search query 
         query = db.session.query(Group)
         groups = Group.query.search(term).all()
-        print groups
         return render_template('groups.html',groups=groups,search=True)
     return render_template('groups.html',groups=[],search=True)
 

@@ -8,37 +8,42 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_searchable import SearchQueryMixin
 
 
-
+#Table for user's posts
 association_table = db.Table('association_table',
     db.Column('user_id', db.Integer, db.ForeignKey('posts.id')),
     db.Column('post_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+#relationship table for user's friends
 friends = db.Table('friends',
     db.Column('friend1_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('friend2_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+#relationship table for members of a group
 members = db.Table('members',
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+#relationship table for posts of a group
 group_posts = db.Table('group_posts',
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
     db.Column('post_id', db.Integer, db.ForeignKey('posts.id'))
 )
 
+#relationship table for admins of a group
 admins = db.Table('admins',
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+#relationship table for likes of a post
 post_likes = db.Table('post_likes',
     db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
     db.Column('user_id',db.Integer,db.ForeignKey('users.id'))
 )
-
+#relationship table for comments on post
 comment_likes = db.Table('comment_likes',
     db.Column('comment_id',db.Integer,db.ForeignKey('comments.id')),
     db.Column('user_id',db.Integer,db.ForeignKey('users.id'))
@@ -47,6 +52,9 @@ comment_likes = db.Table('comment_likes',
 make_searchable()
 db.configure_mappers()
 
+
+'''The user class is for every user
+'''
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -69,6 +77,7 @@ class User(db.Model):
         self.email = email
         self.password = password
 
+
     def delete_friend(self,user):
         if user in self.friends:
             self.friends.remove(user)
@@ -86,7 +95,7 @@ class User(db.Model):
         self.posts.append(post)
         db.session.commit()
 
-    
+#for group and personal posts
 class Post(db.Model):
     __tablename__ = 'posts'
 
@@ -116,9 +125,11 @@ class Post(db.Model):
         db.session.commit()
 
     def delete(self):
+        self.likes = []
         Post.query.filter_by(id=self.id).delete()
         db.session.commit()
 
+#a friend request is made between two users and if its accepted or rejcted it's deleted
 class FriendRequest(db.Model):
     __tablename__ = 'friend_requests'
 
@@ -174,6 +185,7 @@ class GroupRequest(db.Model):
         GroupRequest.query.filter_by(id=self.id).delete()
         db.session.commit()
 
+#model for a message sent between users
 class Message(db.Model):
     __tablename__ = 'messages'
 
@@ -188,6 +200,7 @@ class Message(db.Model):
         self.user_to = user_to
         self.content = content
 
+#comments on a post
 class Comment(db.Model):
     __tablename__ = 'comments'
 
@@ -218,7 +231,7 @@ class Comment(db.Model):
         db.session.commit()
 
 
-
+#user for searching a group
 class GroupQuery(BaseQuery, SearchQueryMixin):
     pass
 
@@ -234,7 +247,7 @@ class Group(db.Model):
     admins = db.relationship('User',secondary=admins,backref=db.backref('admin_users', lazy='dynamic'))
     description = db.Column(db.String)
     private = db.Column(db.Boolean)
-    search_vector = db.Column(TSVectorType('name', 'description'))
+    search_vector = db.Column(TSVectorType('group_name', 'group_description'))
 
     def __init__(self,name,description,admin,private):
         self.name = name
