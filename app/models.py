@@ -25,6 +25,11 @@ members = db.Table('members',
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
 )
+#relationship table for banned members of a group
+banned_members = db.Table('banned_members',
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
+)
 
 #relationship table for posts of a group
 group_posts = db.Table('group_posts',
@@ -175,9 +180,7 @@ class GroupRequest(db.Model):
         self.group = group
         self.accepted = False
 
-    def accept(self,user_id,group_id):
-        user = User.query.get(user_id)
-        group = Group.query.get(group_id)
+    def accept(self,user,group):
         group.join(user)
         self.reject()
 
@@ -245,6 +248,7 @@ class Group(db.Model):
     members = db.relationship('User',secondary=members,backref=db.backref('group_users', lazy='dynamic'))
     group_posts = db.relationship('Post',secondary=group_posts,backref=db.backref('group_posts', lazy='dynamic',order_by=Post.time_posted))
     admins = db.relationship('User',secondary=admins,backref=db.backref('admin_users', lazy='dynamic'))
+    banned_members = db.relationship('User',secondary=banned_members,backref=db.backref('group_banned_users', lazy='dynamic'))
     description = db.Column(db.String)
     private = db.Column(db.Boolean)
     search_vector = db.Column(TSVectorType('group_name', 'group_description'))
@@ -288,6 +292,11 @@ class Group(db.Model):
         self.group_posts.append(post)
         db.session.commit()
 
+    def is_banned(self,user):
+        if user in self.banned_members:
+            return True
+        else:
+            return False
 
 
 

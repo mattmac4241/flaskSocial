@@ -103,24 +103,27 @@ else user just joins the group
 def join_group(group_id):
     group = get_object_or_404(Group,Group.id == group_id) #check if group exists
     user = User.query.get(session['user_id'])
-    if user not in group.members:
-        check = GroupRequest.query.filter_by(user = session['user_id'],group= group.id).first() #get friend request
-        if group.private:
-            if check == None: #if no request present
-                request = GroupRequest(
-                    user = user.id,
-                    group = group.id,
-                    )
-                db.session.add(request)
-                db.session.commit()
-                flash('Group is private, request to join sent')
-                return redirect(url_for('users.my_profile'))
+    if user not in group.banned_members:
+        if user not in group.members:
+            check = GroupRequest.query.filter_by(user = session['user_id'],group= group.id).first() #get friend request
+            if group.private:
+                if check == None: #if no request present
+                    request = GroupRequest(
+                        user = user.id,
+                        group = group.id,
+                        )
+                    db.session.add(request)
+                    db.session.commit()
+                    flash('Group is private, request to join sent')
+                    return redirect(url_for('users.my_profile'))
+                else:
+                    flash('Request already sent')
             else:
-                flash('Request already sent')
+                group.join(user)
         else:
-            group.join(user)
+            flash('You already joined this group')
     else:
-        flash('You already joined this group')
+        flash('You are banned from this group')
     return redirect(url_for('groups.group_page',group_id=group_id))
 
 #leave group, can't leave if you are an admin

@@ -6,11 +6,12 @@
         <div class="name">
             <h1>Admin Panel</h1>
             <div class="btn-group">
-            	<a href="/groups/{{group.id}}/admin/requests/" class="btn btn-success btn-sm">Join Requests</a>
+            	<a href="/groups/{{group.id}}/admin/requests/" class="btn btn-primary btn-sm">Join Requests</a>
+                <a href="/groups/{{group.id}}/admin/banned_members/" class="btn btn-warning btn-sm">Banned Members</a>
             	{%if group.private%}
-	            	<a href="/groups/{{group.id}}/admin/change_privacy/" class="btn btn-warning btn-sm">Make Public</a>
+	            	<a href="/groups/{{group.id}}/admin/change_privacy/" class="btn btn-danger btn-sm">Make Public</a>
             	{%else%}
-   	            	<a href="/groups/{{group.id}}/admin/change_privacy/" class="btn btn-warning btn-sm">Make Private</a>
+   	            	<a href="/groups/{{group.id}}/admin/change_privacy/" class="btn btn-danger btn-sm">Make Private</a>
    	            {%endif%}
             </div>
             <br>

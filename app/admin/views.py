@@ -41,7 +41,8 @@ def accept(group_id,request_id):
     user = User.query.get(session['user_id'])
     if user in group.admins:
         request = get_object_or_404(GroupRequest,GroupRequest.id == request_id)
-        request.accept(request.user,group.id)
+        user2 = User.query.get(request.user)
+        request.accept(user2,group)
         flash('Request accepted')
         return redirect(url_for('admin.group_requests',group_id=group_id))
 
@@ -87,6 +88,7 @@ def delete_post(group_id,post_id):
         flash("You do not have permission for that")
         return redirect(url_for('posts.post',post_id = post_id))
 
+#remove a member from the group, that can be by that member or the admin
 @admin_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/remove/')
 @login_required
 def remove_member(group_id,user_id):
@@ -96,6 +98,7 @@ def remove_member(group_id,user_id):
         user = get_object_or_404(User,User.id == user_id)
         if not group.is_admin(user):
             group.members.remove(user)
+            group.banned_members.append(user) #add member to banned list
             db.session.commit()
             flash('Member removed')
         else:
@@ -106,6 +109,7 @@ def remove_member(group_id,user_id):
         return redirect(url_for('groups.group_page',group_id=group_id))
 
 
+#change the privacy of the group, if the group is private make public and vice versa 
 @admin_blueprint.route('/groups/<int:group_id>/admin/change_privacy/')
 @login_required
 def change_privacy(group_id):
@@ -126,5 +130,52 @@ def change_privacy(group_id):
     else:
         flash('You do not have permission for that')
         return redirect(url_for('groups.group_page',group_id=group_id))
+
+#get the list of members who are banned from the group
+@admin_blueprint.route('/groups/<int:group_id>/admin/banned_members/')
+@login_required
+def banned_members(group_id):
+    group = get_object_or_404(Group,Group.id == group_id)
+    admin = User.query.get(session['user_id'])
+    if group.is_admin(admin):
+        members = group.banned_members
+        admins = group.admins
+        return render_template('members.html',members=members,admins=admins,banned=True,is_admin=True,group=group)
+    else:
+        flash('You do not have permission for that')
+        return redirect(url_for('groups.group_page',group_id=group_id))
+
+@admin_blueprint.route('/groups/<int:group_id>/members/<int:user_id>/remove_ban/')
+def remove_ban(group_id,user_id):
+    group = get_object_or_404(Group,Group.id == group_id)
+    user = get_object_or_404(User,User.id == user_id)
+    admin = User.query.get(session['user_id'])
+    if group.is_admin(admin):
+        group.banned_members.remove(user)
+        db.session.commit()
+        flash('User ban removed')
+        return redirect(url_for('admin.banned_members',group_id=group_id))
+    else:
+        flash('You do not have permission for that')
+        return redirect(url_for('groups.group_page',group_id=group_id))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

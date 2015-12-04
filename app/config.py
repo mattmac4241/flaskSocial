@@ -13,8 +13,8 @@ DEBUG = False
 # define the full path for the database
 DATABASE_PATH = os.path.join(basedir, DATABASE)
 
-urlparse.uses_netloc.append("postgres")
-url = urlparse.urlparse(os.environ["DATABASE_URL"])
+'''urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])'''
 
 # the database uri
 SQLALCHEMY_DATABASE_URI = "postgresql://matt:Password@localhost/social"
