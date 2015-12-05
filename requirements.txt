@@ -24,6 +24,7 @@ psycopg2==2.6.1
 pycparser==2.14
 pyparsing==2.0.6
 python-editor==0.4
+requests==2.8.1
 six==1.10.0
 translitcodec==0.4.0
 validators==0.9
