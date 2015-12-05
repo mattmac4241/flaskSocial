@@ -29,3 +29,5 @@ six==1.10.0
 translitcodec==0.4.0
 validators==0.9
 wsgiref==0.1.2
+requests==2.8.1
+
