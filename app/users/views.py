@@ -1,6 +1,6 @@
 from flask import flash, redirect, render_template,request, session, url_for, Blueprint
 from sqlalchemy.exc import IntegrityError
-from .forms import RegisterForm,LoginForm,ResetPasswordForm
+from .forms import RegisterForm,LoginForm,ChangePasswordForm,ResetPasswordForm
 from app.models import User,FriendRequest,Post
 from app import db,bcrypt
 from app.helpers import login_required,get_object_or_404
@@ -36,7 +36,7 @@ def confirm_email(token):
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
         flash('Request new link')
-        return redirect(url_for(users.resend))
+        return redirect(url_for(users.resend_confirmation))
     user = User.query.filter_by(email=email).first_or_404()
     if user.confirmed:
         flash('Account already confirmed. Please login.', 'success')
@@ -48,7 +48,7 @@ def confirm_email(token):
     return redirect(url_for('users.login'))
 
 #resend confimation email if user
-@users_blueprint.route('/resend/',methods=['GET','POST'])
+@users_blueprint.route('/resend/confimation/',methods=['GET','POST'])
 def resend_confirmation():
     if request.method == 'POST':
         user = get_object_or_404(User,User.email==request.form['email'])
@@ -61,10 +61,43 @@ def resend_confirmation():
         return redirect(url_for('users.login'))
     return render_template('resend.html')
 
-@users_blueprint.route('/reset_password/',methods=['GET','POST'])
-@login_required
-def reset_password():
+#changes password 
+@users_blueprint.route('/reset_password/<token>',methods=['GET','POST'])
+def reset_password(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+        flash('Request new link')
+        return redirect(url_for(users.resend_password))
     form = ResetPasswordForm(request.form)
+    user = get_object_or_404(User,User.email == email)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user.password = bcrypt.generate_password_hash(form.new_password.data)
+            db.session.commit()
+            flash('Your password has been changed', 'success')
+            return redirect(url_for('users.login'))
+    return render_template('reset_password.html',form=form,token=token)
+
+#resend confimation email if user
+@users_blueprint.route('/resend/password/',methods=['GET','POST'])
+def resend_password():
+    if request.method == 'POST':
+        user = get_object_or_404(User,User.email==request.form['email'])
+        token = generate_confirmation_token(user.email)
+        reset_url = url_for('users.reset_password', token=token, _external=True)
+        html = render_template('reset.html', reset_url=reset_url)
+        subject = "Reset Password"
+        send_email(user.email, subject, html)
+        flash('A reset password email has been sent.', 'success')
+        return redirect(url_for('users.login'))
+    return render_template('resend.html')
+
+@users_blueprint.route('/change_password/',methods=['GET','POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm(request.form)
     if request.method == 'POST':
         if form.validate_on_submit():
             user = User.query.get(session['user_id'])
@@ -74,8 +107,7 @@ def reset_password():
                 flash('Password reset')
                 return redirect(url_for('users.my_profile'))
             flash('Password does not match')
-    return render_template('reset_password.html',form=form)
-
+    return render_template('change_password.html',form=form,reset=True)
 
 #user register
 @users_blueprint.route('/register/',methods=['GET','POST'])

@@ -1,12 +1,26 @@
 {%extends "base.html"%}
 
 {%block content%}
+{%if confirm%}
 <h1>Resend Confirmation</h1>
+{%else%}
+<h1>Reset Password</h1>
+{%endif%}
 <hr>
 <div class="container">
-	<form method="POST" action="/resend/" >	  
+	{%if confirm%}
+	<form method="POST" action="/resend/confirmation/" >	 
+	{%else%}
+	<form method="POST" action="/resend/password/" >
+	{%endif%}	 
+	 	<form method="POST" action="/resend/" >	 
   	    <input type="text" class="form-control" id="usr" placeholder="Enter email here" name="email">
+    	{%if confirm%}
   	  <button class="btn btn-sm btn-success" type="submit">Re-Send</button>
+  	  {%else%}
+  	    <button class="btn btn-sm btn-success" type="submit">Reset Password</button>
+  	   {%endif%}
+
   </form>
 </div>
 
