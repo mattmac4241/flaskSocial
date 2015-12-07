@@ -99,6 +99,7 @@ def confirm_email(token):
         flash('The confirmation link is invalid or has expired.', 'danger')
         flash('Request new link')
         return redirect(url_for('users.resend_confirmation'))
+    print email
     user = User.query.filter_by(email=email).first_or_404()
     if user.confirmed:
         flash('Account already confirmed. Please login.', 'success')
@@ -133,6 +134,10 @@ def reset_password(token):
         flash('The confirmation link is invalid or has expired.', 'danger')
         flash('Request new link')
         return redirect(url_for("users.resend_password"))
+    if email == False:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+        flash('Request new link')
+        return redirect(url_for('users.reset_password'))
     form = ResetPasswordForm(request.form)
     if request.method == 'POST':
         user = get_object_or_404(User,User.email == email)
