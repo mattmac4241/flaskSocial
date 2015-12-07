@@ -130,8 +130,8 @@ def reset_password(token):
         flash('Request new link')
         return redirect(url_for(users.resend_password))
     form = ResetPasswordForm(request.form)
-    user = get_object_or_404(User,User.email == email)
     if request.method == 'POST':
+        user = get_object_or_404(User,User.email == email)
         if form.validate_on_submit():
             user.password = bcrypt.generate_password_hash(form.new_password.data)
             db.session.commit()
