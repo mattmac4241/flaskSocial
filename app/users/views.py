@@ -128,7 +128,7 @@ def reset_password(token):
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
         flash('Request new link')
-        return redirect(url_for(users.resend_password))
+        return redirect(url_for("users.resend_password"))
     form = ResetPasswordForm(request.form)
     if request.method == 'POST':
         user = get_object_or_404(User,User.email == email)
