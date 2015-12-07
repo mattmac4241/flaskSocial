@@ -29,6 +29,83 @@ def home():
     else:
         return redirect(url_for('users.login')) 
 
+#user register
+@users_blueprint.route('/register/',methods=['GET','POST'])
+def register():
+    error = None
+    form = RegisterForm(request.form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            new_user = User(
+                user_name = form.user_name.data,
+                email = form.email.data,
+                password = bcrypt.generate_password_hash(form.password.data),
+                confirmed = False
+            )
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                token = generate_confirmation_token(new_user.email)
+                confirm_url = url_for('users.confirm_email', token=token, _external=True)
+                html = render_template('activate.html', confirm_url=confirm_url)
+                subject = "Please confirm your email"
+                send_email(new_user.email, subject, html)
+                flash('A confirmation email has been sent via email.')
+                return redirect(url_for('users.login'))
+
+            except IntegrityError:
+                error = "That username and/or email alread exists."
+                return render_template('register.html',form=form,error=error)
+    return render_template('register.html',form=form)
+
+#user login
+@users_blueprint.route('/login/',methods=['GET','POST'])
+def login():
+    error = None
+    form = LoginForm(request.form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=request.form['email']).first()
+            if user is not None and bcrypt.check_password_hash(user.password, request.form['password']):
+                if user.confirmed == True:
+                        session['logged_in'] = True
+                        session['user_id'] = user.id
+                        flash('Welcome!')
+                        flash("Succesfful Logged in")
+                        return redirect(url_for('users.my_profile'))
+                else:
+                    flash('Please confirm your account, an email was sent')
+            else:
+                flash('Invlaid username or password')
+                
+    return render_template('login.html',form=form,error=error)
+
+@users_blueprint.route('/logout/',methods=['GET','POST'])
+def logout():
+    session.pop('logged_in',None)
+    session.pop('user_id',None)
+    flash('Goodbye!')
+    return redirect(url_for('users.login'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @users_blueprint.route('/confirm/<token>')
 def confirm_email(token):
     try:
@@ -109,62 +186,6 @@ def change_password():
             flash('Password does not match')
     return render_template('change_password.html',form=form,reset=True)
 
-#user register
-@users_blueprint.route('/register/',methods=['GET','POST'])
-def register():
-    error = None
-    form = RegisterForm(request.form)
-    if request.method == 'POST':
-        new_user = User(
-            user_name = form.user_name.data,
-            email = form.email.data,
-            password = bcrypt.generate_password_hash(form.password.data),
-            confirmed = False
-        )
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            token = generate_confirmation_token(new_user.email)
-            confirm_url = url_for('users.confirm_email', token=token, _external=True)
-            html = render_template('activate.html', confirm_url=confirm_url)
-            subject = "Please confirm your email"
-            send_email(new_user.email, subject, html)
-            flash('A confirmation email has been sent via email.')
-            return redirect(url_for('users.login'))
-
-        except IntegrityError:
-            error = "That username and/or email alread exists."
-            return render_template('register.html',form=form,error=error)
-    return render_template('register.html',form=form)
-
-#user login
-@users_blueprint.route('/login/',methods=['GET','POST'])
-def login():
-    error = None
-    form = LoginForm(request.form)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=request.form['email']).first()
-            if user is not None and bcrypt.check_password_hash(user.password, request.form['password']):
-                if user.confirmed == True:
-                        session['logged_in'] = True
-                        session['user_id'] = user.id
-                        flash('Welcome!')
-                        flash("Succesfful Logged in")
-                        return redirect(url_for('users.my_profile'))
-                else:
-                    flash('Please confirm your account, an email was sent')
-            else:
-                flash('Invlaid username or password')
-                
-    return render_template('login.html',form=form,error=error)
-
-@users_blueprint.route('/logout/',methods=['GET','POST'])
-def logout():
-    session.pop('logged_in',None)
-    session.pop('user_id',None)
-    flash('Goodbye!')
-    return redirect(url_for('users.login'))
 
 #the posts are filtered by newest post
 #this is the user page 
