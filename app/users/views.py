@@ -87,25 +87,6 @@ def logout():
     flash('Goodbye!')
     return redirect(url_for('users.login'))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @users_blueprint.route('/confirm/<token>')
 def confirm_email(token):
     try:
@@ -128,7 +109,7 @@ def confirm_email(token):
 @users_blueprint.route('/resend/confimation/',methods=['GET','POST'])
 def resend_confirmation():
     if request.method == 'POST':
-        user = get_object_or_404(User,User.email==request.form['email'])
+        user = get_object_or_404(User,User.email == request.form['email'])
         token = generate_confirmation_token(user.email)
         confirm_url = url_for('users.confirm_email', token=token, _external=True)
         html = render_template('activate.html', confirm_url=confirm_url)
@@ -141,6 +122,7 @@ def resend_confirmation():
 #changes password 
 @users_blueprint.route('/reset_password/<token>',methods=['GET','POST'])
 def reset_password(token):
+    email = ''
     try:
         email = confirm_token(token)
     except:
