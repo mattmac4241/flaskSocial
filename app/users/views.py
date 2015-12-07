@@ -94,8 +94,8 @@ def confirm_email(token):
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
         flash('Request new link')
-        return redirect(url_for(users.resend_confirmation))
-    user = User.query.filter_by(email=email).first_or_404()
+        return redirect(url_for('users.resend_confirmation'))
+    user = get_object_or_404(User,User.email == email)
     if user.confirmed:
         flash('Account already confirmed. Please login.', 'success')
     else:
